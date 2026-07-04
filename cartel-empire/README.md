@@ -6,24 +6,24 @@ without keeping the tab in focus.
 
 ## Features
 
-- **Countdown in the tab title** — your active job / jail / hospital timer shows
-  as `[Job] MM:SS`, `[Prison] MM:SS`, `[Hospital] MM:SS` right in the browser tab,
-  so you can track it from any tab.
-- **Desktop notifications** on:
-  - **Job complete** — `"Job Complete!"` when your operation finishes.
-  - **Job failed** — plain fail with no consequence.
-  - **Arrested** — job-caused jailing (`"Arrested! Your <Job> attempt failed..."`).
-  - **Hospitalised** — job-caused injury.
-  - **Released** — when you're out of jail / hospital, then jumps you to `/Jobs`.
-- **Page-independent status** — detects jail/hospital state from the live navbar
-  signals, so it works on any page of the site, not just `/Jobs`.
-- **Correct self-lock handling** — self-hospitalising / self-jailing while a job
-  is still running does NOT fire a false "attempt failed" notification; the job
-  keeps counting down.
-- **Multi-tab safe** — notifications are deduplicated across open tabs (only one
-  tab fires each alert).
-- **Personal Favour aware** — using a Personal Favour to leave jail is handled
-  silently (no bogus "you're released" spam).
+| Feature | What it does |
+| --- | --- |
+| **Countdown in the tab title** | Your active job / jail / hospital timer shows as `[Job] MM:SS`, `[Prison] MM:SS`, `[Hospital] MM:SS` right in the browser tab — track it from any tab without switching. |
+| **Desktop notifications** | Fires on key events (see table below) so you don't have to watch the game. |
+| **Page-independent status** | Detects jail/hospital state from live navbar signals, so it works on any page of the site, not just `/Jobs`. |
+| **Correct self-lock handling** | Self-hospitalising / self-jailing while a job is still running does *not* fire a false "attempt failed" alert — the job keeps counting down. |
+| **Multi-tab safe** | Notifications are deduplicated across open tabs — only one tab fires each alert. |
+| **Personal Favour aware** | Leaving jail early via a Personal Favour is handled silently (no bogus "you're released" spam). |
+
+### Notification triggers
+
+| Trigger | Notification |
+| --- | --- |
+| Job complete | `"Job Complete!"` when your operation finishes. |
+| Job failed | Plain fail, no consequence. |
+| Arrested | Job-caused jailing (`"Arrested! Your <Job> attempt failed..."`). |
+| Hospitalised | Job-caused injury. |
+| Released | When you're out of jail / hospital — then jumps you to `/Jobs`. |
 
 ## Install
 

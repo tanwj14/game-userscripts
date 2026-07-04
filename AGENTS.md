@@ -9,9 +9,10 @@ self-contained in its own folder with its own `README.md`, `CHANGELOG.md`, and
 the nearest one, so game-specific DOM facts and gotchas live there
 (e.g. [`cartel-empire/AGENTS.md`](cartel-empire/AGENTS.md)).
 
-## Author
+## Maintainer
 
-`PureVirginPulp [1611]` in Cartel Empire. GitHub: `tanwj14`.
+GitHub: `tanwj14`. Per-game in-game handles (where relevant) are noted in that
+game's own `AGENTS.md`.
 
 ## Shipping an update (any script)
 
