@@ -3,6 +3,8 @@
 Game-specific development context for `cartel-empire-job-timer.user.js`. For the
 shared shipping workflow and repo conventions, see the [root AGENTS.md](../AGENTS.md).
 
+In-game author: `PureVirginPulp [1611]`.
+
 QOL script: shows job / jail / hospital countdowns in the browser tab title and
 sends cross-tab-deduplicated desktop notifications on job completion and
 outcomes. Site: https://cartelempire.online (matches `https://cartelempire.online/*`).
