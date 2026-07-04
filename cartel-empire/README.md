@@ -44,8 +44,8 @@ Updates install automatically (the script self-checks this repo via its
 
 ## Development
 
-See the repo-level [AGENTS.md](../AGENTS.md) for DOM facts, self-lock behaviour,
-banner-wording reference, and the live-inspection workflow. Dev tooling lives in
+See [AGENTS.md](AGENTS.md) for DOM facts, self-lock behaviour, banner-wording
+reference, and the live-inspection workflow. Dev tooling lives in
 [`dev/browser-inspect/`](dev/browser-inspect/).
 
 ## Changelog
