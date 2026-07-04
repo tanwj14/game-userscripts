@@ -1,0 +1,13 @@
+# Dependencies
+node_modules/
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/
+.idea/
+
+# Scratch / local
+scratch/
+*.local
