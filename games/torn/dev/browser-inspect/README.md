@@ -1,12 +1,12 @@
 # browser-inspect — Torn probes
 
 Torn-specific CDP inspectors for developing `../../torn-flight-countdown.user.js`.
-For the debug-Chrome setup, the shared `inspect.js` (`tabs` / `dom` / `html`), and
-dependency install, see the shared
-[`tools/browser-inspect/`](../../../../tools/browser-inspect/README.md).
 
-Playwright resolves from the repo-root `node_modules` (run `npm install` at the
-repo root once). Run these from the repo root.
+Setup — debug Chrome, the shared `inspect.js` (`tabs` / `dom` / `html`), and
+`npm install` — is covered once in the shared
+[`tools/browser-inspect/`](../../../../tools/browser-inspect/README.md). Run the
+scripts below from the repo root; `playwright` resolves from the root
+`node_modules`.
 
 ## Scripts
 
