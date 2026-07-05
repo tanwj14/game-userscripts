@@ -1,9 +1,11 @@
 # browser-inspect (shared)
 
 Game-agnostic tooling for developing the userscripts against a live browser:
-`inspect.js` connects to a running Chrome over the DevTools protocol (CDP) to read
-live page state. Per-game probes live in each game's own `games/<game>/dev/browser-inspect/`
-and reuse the same setup and the shared `playwright` dependency.
+`inspect.js` connects to a running Chrome over the DevTools protocol (CDP) to
+read live page state.
+
+Game-specific probes live with each game and reuse this setup and the shared
+`playwright` dependency. See [Per-game probes](#per-game-probes) below.
 
 ## One-time setup to make Chrome inspectable
 
@@ -19,10 +21,17 @@ copy of the profile:
 
 ## Install dependencies
 
-`playwright` is declared once in the **repo-root** `package.json`. From the repo
-root run `npm install` — this creates a root `node_modules` (gitignored) that
-every script under `tools/` and `games/<game>/dev/` resolves via Node's upward
-`node_modules` lookup. No per-folder install needed.
+From the repo root:
+
+```
+npm install
+```
+
+- `playwright` is declared once, in the repo-root `package.json`.
+- One root install covers every script under `tools/` and `games/<game>/dev/`, since
+  Node resolves dependencies by walking up the folder tree.
+- No per-folder install is needed.
+- The generated `node_modules` is gitignored.
 
 ## Shared script
 

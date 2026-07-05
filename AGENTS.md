@@ -1,11 +1,11 @@
 # AGENTS.md
 
 Development context for humans and AI coding harnesses working in this repo.
-Repo is a collection of Tampermonkey userscripts for browser games; each game is
+Repo is a collection of Tampermonkey userscripts for browser games. Each game is
 self-contained in its own folder with its own `README.md`, `CHANGELOG.md`, and
 (where useful) an `AGENTS.md` carrying that game's dev-specific knowledge.
 
-**Working on a specific game? Read its folder's `AGENTS.md` too** — agents read
+**Working on a specific game? Read its folder's `AGENTS.md` too.** Agents read
 the nearest one, so game-specific DOM facts and gotchas live there
 (e.g. [`games/cartel-empire/AGENTS.md`](games/cartel-empire/AGENTS.md)).
 
@@ -29,8 +29,8 @@ https://raw.githubusercontent.com/tanwj14/game-userscripts/main/games/<game>/<sc
 ```
 
 Tampermonkey polls these, so bumping `@version` and pushing is all it takes for
-installed clients to update. **Do not rename a game folder or script file** —
-that breaks the raw URL and silently kills auto-update for everyone installed.
+installed clients to update. **Do not rename a game folder or script file.**
+That breaks the raw URL and silently kills auto-update for everyone installed.
 
 ## Local sanity checks
 
@@ -44,10 +44,10 @@ that breaks the raw URL and silently kills auto-update for everyone installed.
 
 Shared, game-agnostic CDP tooling lives in [`tools/browser-inspect/`](tools/browser-inspect/)
 (the `inspect.js` connector + debug-Chrome setup). `playwright` is declared once
-in the repo-root `package.json` — run `npm install` at the root, and every script
-under `tools/` and `games/<game>/dev/` resolves it via Node's upward `node_modules`
-lookup. Game-specific probes (which hard-code that game's selectors / localStorage
-keys) live in `games/<game>/dev/browser-inspect/`.
+in the repo-root `package.json`. Run `npm install` at the root once. Every script
+under `tools/` and `games/<game>/dev/` then resolves it via Node's upward
+`node_modules` lookup. Game-specific probes live in `games/<game>/dev/browser-inspect/`,
+where they hard-code that game's own selectors and localStorage keys.
 
 ## Adding a new game
 
@@ -55,5 +55,5 @@ keys) live in `games/<game>/dev/browser-inspect/`.
 2. Add `@updateURL` / `@downloadURL` headers pointing at the raw URL above.
 3. Add `games/<game>/AGENTS.md` if the game has non-obvious DOM/behaviour notes.
 4. Add a row to the root `README.md` scripts table.
-5. Put any game-specific inspectors in `games/<game>/dev/browser-inspect/` (reuse the
-   shared setup + root `playwright`; don't re-declare the dependency).
+5. Put any game-specific inspectors in `games/<game>/dev/browser-inspect/`. Reuse the
+   shared setup and the root `playwright`. Do not re-declare the dependency.

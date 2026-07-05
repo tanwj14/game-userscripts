@@ -7,7 +7,7 @@ In-game author: `ToiletPaper1USD [2875069]`.
 
 QOL script: keeps a flight countdown on the browser tab title. Site:
 https://www.torn.com (matches `https://www.torn.com/*`). Runs at
-`document-start`; a freshly installed/updated version needs a full page reload
+`document-start`. A freshly installed or updated version needs a full page reload
 to take over the title.
 
 ## State model
@@ -18,7 +18,7 @@ to take over the title.
   `updateTabTimer` else-branch clears `torn_flight_landing` / `torn_flight_destination`
   and the title resets to the game's native title.
 - **`flying`** — in transit. Header link `aria-label` reads
-  `"Traveling from <A> to <B>"`; destination is `<B>` (so a return flight reads
+  `"Traveling from <A> to <B>"`. Destination is `<B>` (so a return flight reads
   as `Torn` → label `[TORN]`).
 - **`abroad`** — landed overseas. `aria-label` reads `"Abroad in <country>"`.
 
@@ -31,7 +31,7 @@ clears its cache when the countdown hits zero (no "Reached!" for coming home).
 
 - **Travel status link:** `a[href*="sid=travel"][aria-label]` in the header
   mirrors the globe (in transit) / cart (arrived) icons. Its `aria-label` is the
-  trusted, short source for state + destination — parse it, do **not** scan
+  trusted, short source for state and destination. Parse it, and do **not** scan
   `document.body.innerText` for country names (false positives). Body-text checks
   (`Remaining Flight Time`, `Travel home`) are only fallbacks if the aria wording
   changes.
