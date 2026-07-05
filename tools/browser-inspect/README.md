@@ -27,10 +27,11 @@ From the repo root:
 npm install
 ```
 
-`playwright` is declared once in the repo-root `package.json`. A single install at
-the root serves every script under `tools/` and `games/<game>/dev/`, because Node
-resolves dependencies by walking up the folder tree. No per-folder install is
-needed. The generated `node_modules` is gitignored.
+- `playwright` is declared once, in the repo-root `package.json`.
+- One root install covers every script under `tools/` and `games/<game>/dev/`, since
+  Node resolves dependencies by walking up the folder tree.
+- No per-folder install is needed.
+- The generated `node_modules` is gitignored.
 
 ## Shared script
 

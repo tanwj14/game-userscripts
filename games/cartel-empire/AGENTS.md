@@ -14,22 +14,22 @@ outcomes. Site: https://cartelempire.online (matches `https://cartelempire.onlin
 Uses the shared debug-Chrome setup in
 [`tools/browser-inspect/`](../../tools/browser-inspect/README.md)
 (`--remote-debugging-port=9222`, `playwright` from the repo root). Cartel-specific
-probes are in [`dev/browser-inspect/`](dev/browser-inspect/) — see its
+probes are in [`dev/browser-inspect/`](dev/browser-inspect/). See its
 [README](dev/browser-inspect/README.md) for what each one inspects. They connect
-via CDP to `http://localhost:9222` to read live DOM + localStorage.
+via CDP to `http://localhost:9222` to read live DOM and localStorage.
 
 ## Key DOM facts (captured live)
 
 - **Active job:** the running job's card is `div.equipmentModule` containing only
   that job's name, description, countdown, and `#cancelButton`. The enclosing
-  `div.jobContainer` is broader and lists multiple jobs — scoping to it leaks
+  `div.jobContainer` is broader and lists multiple jobs. Scoping to it leaks
   other job names into the title (the v1.4.2 bug). Always scope from
   `#cancelButton.closest('.equipmentModule')`.
 - **Two `#cancelButton` nodes / ~10 `.equipmentModule`** exist (responsive
   desktop/mobile copies), but only ONE job runs at a time. `querySelector` (first
-  match) is correct; no multi-job tracking needed.
+  match) is correct. No multi-job tracking is needed.
 - **Job finish time:** `#progressMessage` carries `data-bs-finishtime` = absolute
-  epoch **seconds**. Authoritative — prefer it over scraping `"3m 14s"` text.
+  epoch **seconds**. Authoritative. Prefer it over scraping `"3m 14s"` text.
 - **Live status (page-independent):** the game live-updates player status into
   every open tab with no reload. `detectStatusState()` → `'Hospital'|'Prison'|null`:
   primary signal = navbar `.hospitalIcon` / `.jailIcon` losing class `d-none`;
@@ -37,16 +37,16 @@ via CDP to `http://localhost:9222` to read live DOM + localStorage.
   Match the **class**, not the `.webp` filename (filenames are content-hashed).
   These are applied client-side, so they are ABSENT from raw server HTML.
 - **/Hospital timers:** `<span class="countdownTimer" data-release="<epoch_ms>">`
-  (absolute ms). Multiple spans exist; isolating the user's own still needs work.
+  (absolute ms). Multiple spans exist. Isolating the user's own still needs work.
 
 ## Self-lock behaviour (critical)
 
 Self-hospitalising / self-jailing via your OWN action (not a job failure) renders
-**NO banner** — only the live-status signals change. On `/Jobs` the running-job
+**NO banner**. Only the live-status signals change. On `/Jobs` the running-job
 card (`#cancelButton` + `#progressMessage`) is **removed from the DOM** the moment
 you become locked, even though the job keeps running server-side
-(`CEJobFinishTime` stays in the future). So a running job and a self-lock coexist;
-the card vanishing does NOT mean the job was cancelled.
+(`CEJobFinishTime` stays in the future). So a running job and a self-lock coexist.
+The card vanishing does NOT mean the job was cancelled.
 
 Guard (v1.5.4): `SELF_LOCK_GRACE = 3`. A hospital/jail lock is only treated as
 THIS job's outcome when it appears within 3s of the job timer ending. A lock seen
@@ -55,7 +55,7 @@ countdown keeps showing. `CEJobSelfLocked` (keyed to `finishTime`) remembers a
 pre-existing self-lock so the job's later completion isn't misattributed.
 
 `processBanner` is the single reliable detector for genuine **job-caused** locks
-(a real consequence always renders a banner; self-locks never do).
+(a real consequence always renders a banner, but self-locks never do).
 
 ## Banner wording reference (captured live)
 
@@ -67,7 +67,7 @@ Result banners (transient, at job end; shape `"HH:MM:SS - <text> - [Refresh]"`):
 - **Prison outcome** — `bg-danger`, `"You were caught by the police during the <Job> job!"`.
 - **Hospital outcome** — `bg-danger`, `"You were hospitalised whilst attempting the <Job> job!"`.
 - **Connector differs**: prison = `"during the"`, hospital = `"whilst attempting the"`.
-  A single `/during the .* job/i` regex misses hospital — match each by its own phrase.
+  A single `/during the .* job/i` regex misses hospital. Match each by its own phrase.
 
 Status banners (persistent while serving, `bg-danger text-white` + MM:SS):
 
@@ -78,7 +78,7 @@ Personal Favour early-out (NOT a banner): inline
 `div.col-12.useItemMsg.mt-2.text-success.fw-bold`, text
 `"...You hand the Personal Favour to the guard, he quickly ushers you out of Jail."`.
 Detect via `.useItemMsg` + `/ushers you out of (jail|prison)/i`. Self-release stays
-silent (cross-tab flag `CEReleasedByFavour`); no release-TIME source exists, so
+silent (cross-tab flag `CEReleasedByFavour`). No release-TIME source exists, so
 release is detected by live status going CLEAR (locked→free), guarded by
 `observedLockedThisSession` against the post-load "looks free" gap.
 
