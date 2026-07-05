@@ -1,15 +1,15 @@
 // ==UserScript==
 // @name         Cartel Empire - Status Tracker & Notifier
 // @namespace    http://tampermonkey.net/
-// @version      1.5.4
+// @version      1.5.5
 // @description  QOL script for Cartel Empire: shows your job / jail / hospital countdown in the browser tab title and sends desktop notifications on job completion and outcomes.
 // @author       PureVirginPulp [1611]
 // @match        https://cartelempire.online/*
 // @grant        GM_notification
 // @icon         https://cartelempire.online/images/icon-white.png
 // @run-at       document-idle
-// @updateURL    https://raw.githubusercontent.com/tanwj14/game-userscripts/main/cartel-empire/cartel-empire-job-timer.user.js
-// @downloadURL  https://raw.githubusercontent.com/tanwj14/game-userscripts/main/cartel-empire/cartel-empire-job-timer.user.js
+// @updateURL    https://raw.githubusercontent.com/tanwj14/game-userscripts/main/games/cartel-empire/cartel-empire-job-timer.user.js
+// @downloadURL  https://raw.githubusercontent.com/tanwj14/game-userscripts/main/games/cartel-empire/cartel-empire-job-timer.user.js
 // ==/UserScript==
 
 (function() {

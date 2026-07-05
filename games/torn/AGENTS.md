@@ -1,7 +1,7 @@
 # AGENTS.md — Torn
 
 Game-specific development context for `torn-flight-countdown.user.js`. For the
-shared shipping workflow and repo conventions, see the [root AGENTS.md](../AGENTS.md).
+shared shipping workflow and repo conventions, see the [root AGENTS.md](../../AGENTS.md).
 
 In-game author: `ToiletPaper1USD [2875069]`.
 

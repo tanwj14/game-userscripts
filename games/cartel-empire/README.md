@@ -28,7 +28,7 @@ without keeping the tab in focus.
 ## Install
 
 1. Install the [Tampermonkey](https://www.tampermonkey.net/) browser extension.
-2. **[Click here to install](https://raw.githubusercontent.com/tanwj14/game-userscripts/main/cartel-empire/cartel-empire-job-timer.user.js)** — Tampermonkey opens its install prompt.
+2. **[Click here to install](https://raw.githubusercontent.com/tanwj14/game-userscripts/main/games/cartel-empire/cartel-empire-job-timer.user.js)** — Tampermonkey opens its install prompt.
 3. Confirm. Open [Cartel Empire](https://cartelempire.online) and allow desktop
    notifications when prompted.
 

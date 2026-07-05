@@ -8,8 +8,8 @@ README (features + install link), and a changelog.
 
 | Game | Script | Install |
 | --- | --- | --- |
-| [Cartel Empire](https://cartelempire.online) | Status Tracker & Notifier — job / jail / hospital countdown in the tab title + desktop notifications | [Install](https://raw.githubusercontent.com/tanwj14/game-userscripts/main/cartel-empire/cartel-empire-job-timer.user.js) · [Details](cartel-empire/README.md) |
-| [Torn](https://www.torn.com) | Flight Countdown on Tab — persistent flight countdown + destination label in the tab title | [Install](https://raw.githubusercontent.com/tanwj14/game-userscripts/main/torn/torn-flight-countdown.user.js) · [Details](torn/README.md) |
+| [Cartel Empire](https://cartelempire.online) | Status Tracker & Notifier — job / jail / hospital countdown in the tab title + desktop notifications | [Install](https://raw.githubusercontent.com/tanwj14/game-userscripts/main/games/cartel-empire/cartel-empire-job-timer.user.js) · [Details](games/cartel-empire/README.md) |
+| [Torn](https://www.torn.com) | Flight Countdown on Tab — persistent flight countdown + destination label in the tab title | [Install](https://raw.githubusercontent.com/tanwj14/game-userscripts/main/games/torn/torn-flight-countdown.user.js) · [Details](games/torn/README.md) |
 
 ## Installing a script
 
@@ -31,11 +31,12 @@ game-userscripts/
   package.json           # shared dev deps (playwright) for the browser-inspect tooling
   tools/
     browser-inspect/     # shared, game-agnostic CDP inspector + debug-Chrome setup
-  <game>/
-    <game>.user.js       # the userscript (stable raw URL for auto-update)
-    README.md            # game-specific features + install link
-    CHANGELOG.md         # version history
-    dev/                 # optional game-specific dev probes (playwright from repo root)
+  games/
+    <game>/
+      <game>.user.js     # the userscript (stable raw URL for auto-update)
+      README.md          # game-specific features + install link
+      CHANGELOG.md       # version history
+      dev/               # optional game-specific dev probes (playwright from repo root)
 ```
 
 ## Contributing / developing

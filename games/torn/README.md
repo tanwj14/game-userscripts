@@ -17,7 +17,7 @@ title, so you can track a trip from any tab without switching back to the game.
 ## Install
 
 1. Install the [Tampermonkey](https://www.tampermonkey.net/) browser extension.
-2. **[Click here to install](https://raw.githubusercontent.com/tanwj14/game-userscripts/main/torn/torn-flight-countdown.user.js)** — Tampermonkey opens its install prompt.
+2. **[Click here to install](https://raw.githubusercontent.com/tanwj14/game-userscripts/main/games/torn/torn-flight-countdown.user.js)** — Tampermonkey opens its install prompt.
 3. Confirm. Open [Torn](https://www.torn.com) and start a flight.
 
 Updates install automatically (the script self-checks this repo via its
