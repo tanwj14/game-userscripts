@@ -3,7 +3,7 @@
 Torn-specific CDP inspectors for developing `../../torn-flight-countdown.user.js`.
 For the debug-Chrome setup, the shared `inspect.js` (`tabs` / `dom` / `html`), and
 dependency install, see the shared
-[`tools/browser-inspect/`](../../../tools/browser-inspect/README.md).
+[`tools/browser-inspect/`](../../../../tools/browser-inspect/README.md).
 
 Playwright resolves from the repo-root `node_modules` (run `npm install` at the
 repo root once). Run these from the repo root.

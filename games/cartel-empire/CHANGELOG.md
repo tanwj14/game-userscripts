@@ -2,6 +2,12 @@
 
 All notable changes to this userscript. Versions follow the `@version` header.
 
+## [1.5.5]
+
+- Moved into `games/cartel-empire/` (repo reorg). Updated `@updateURL` /
+  `@downloadURL` to the new raw path. No behaviour change. Reinstall once from the
+  new raw URL so Tampermonkey tracks the updated location.
+
 ## [1.5.4]
 
 - **Fixed false self-hospitalisation/jail notification.** Self-hospitalising or

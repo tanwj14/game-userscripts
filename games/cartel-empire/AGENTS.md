@@ -1,7 +1,7 @@
 # AGENTS.md — Cartel Empire
 
 Game-specific development context for `cartel-empire-job-timer.user.js`. For the
-shared shipping workflow and repo conventions, see the [root AGENTS.md](../AGENTS.md).
+shared shipping workflow and repo conventions, see the [root AGENTS.md](../../AGENTS.md).
 
 In-game author: `PureVirginPulp [1611]`.
 

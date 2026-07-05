@@ -7,7 +7,7 @@ self-contained in its own folder with its own `README.md`, `CHANGELOG.md`, and
 
 **Working on a specific game? Read its folder's `AGENTS.md` too** — agents read
 the nearest one, so game-specific DOM facts and gotchas live there
-(e.g. [`cartel-empire/AGENTS.md`](cartel-empire/AGENTS.md)).
+(e.g. [`games/cartel-empire/AGENTS.md`](games/cartel-empire/AGENTS.md)).
 
 ## Maintainer
 
@@ -25,7 +25,7 @@ Every script carries `@updateURL` / `@downloadURL` pointing at its **raw** GitHu
 URL on `main`:
 
 ```
-https://raw.githubusercontent.com/tanwj14/game-userscripts/main/<game>/<script>.user.js
+https://raw.githubusercontent.com/tanwj14/game-userscripts/main/games/<game>/<script>.user.js
 ```
 
 Tampermonkey polls these, so bumping `@version` and pushing is all it takes for
@@ -36,7 +36,7 @@ that breaks the raw URL and silently kills auto-update for everyone installed.
 
 - `node --check <script>.user.js` — syntax.
 - Unit-test pure decision logic where a game folder provides a harness
-  (e.g. `cartel-empire/dev/browser-inspect/test-logic.js`).
+  (e.g. `games/cartel-empire/dev/browser-inspect/test-logic.js`).
 - Live-verify behavioural changes in a debug browser before shipping (see the
   game's `AGENTS.md` for its inspection workflow).
 
@@ -51,9 +51,9 @@ keys) live in `<game>/dev/browser-inspect/`.
 
 ## Adding a new game
 
-1. Create `<game>/` with `<game>.user.js`, `README.md`, `CHANGELOG.md`.
+1. Create `games/<game>/` with `<game>.user.js`, `README.md`, `CHANGELOG.md`.
 2. Add `@updateURL` / `@downloadURL` headers pointing at the raw URL above.
 3. Add `<game>/AGENTS.md` if the game has non-obvious DOM/behaviour notes.
 4. Add a row to the root `README.md` scripts table.
-5. Put any game-specific inspectors in `<game>/dev/browser-inspect/` (reuse the
+5. Put any game-specific inspectors in `games/<game>/dev/browser-inspect/` (reuse the
    shared setup + root `playwright`; don't re-declare the dependency).

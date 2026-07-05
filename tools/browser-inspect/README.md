@@ -39,5 +39,5 @@ All connect to `http://localhost:9222`.
 Game-specific inspectors (which hard-code that game's selectors / localStorage
 keys) live with the game:
 
-- [`cartel-empire/dev/browser-inspect/`](../../cartel-empire/dev/browser-inspect/)
-- [`torn/dev/browser-inspect/`](../../torn/dev/browser-inspect/)
+- [`games/cartel-empire/dev/browser-inspect/`](../../games/cartel-empire/dev/browser-inspect/)
+- [`games/torn/dev/browser-inspect/`](../../games/torn/dev/browser-inspect/)

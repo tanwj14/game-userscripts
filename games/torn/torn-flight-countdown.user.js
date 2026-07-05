@@ -1,15 +1,15 @@
 // ==UserScript==
 // @name         Torn.com - Flight Countdown on Tab
 // @namespace    http://tampermonkey.net/
-// @version      9.8
+// @version      9.9
 // @description  Persistent flight countdown on the tab title. Destination read from the header travel status (aria-label / logo title), not whole-page text.
 // @author       ToiletPaper1USD [2875069]
 // @match        https://www.torn.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=torn.com
 // @grant        none
 // @run-at       document-start
-// @updateURL    https://raw.githubusercontent.com/tanwj14/game-userscripts/main/torn/torn-flight-countdown.user.js
-// @downloadURL  https://raw.githubusercontent.com/tanwj14/game-userscripts/main/torn/torn-flight-countdown.user.js
+// @updateURL    https://raw.githubusercontent.com/tanwj14/game-userscripts/main/games/torn/torn-flight-countdown.user.js
+// @downloadURL  https://raw.githubusercontent.com/tanwj14/game-userscripts/main/games/torn/torn-flight-countdown.user.js
 // ==/UserScript==
 
 (function() {

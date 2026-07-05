@@ -2,6 +2,12 @@
 
 All notable changes to this userscript. Versions follow the `@version` header.
 
+## [9.9]
+
+- Moved into `games/torn/` (repo reorg). Updated `@updateURL` / `@downloadURL`
+  to the new raw path. No behaviour change. Reinstall once from the new raw URL
+  so Tampermonkey tracks the updated location.
+
 ## [9.8]
 
 - First release in this repo (added `@updateURL` / `@downloadURL` for
