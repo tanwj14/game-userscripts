@@ -9,6 +9,7 @@ README (features + install link), and a changelog.
 | Game | Script | Install |
 | --- | --- | --- |
 | [Cartel Empire](https://cartelempire.online) | Status Tracker & Notifier — job / jail / hospital countdown in the tab title + desktop notifications | [Install](https://raw.githubusercontent.com/tanwj14/game-userscripts/main/cartel-empire/cartel-empire-job-timer.user.js) · [Details](cartel-empire/README.md) |
+| [Torn](https://www.torn.com) | Flight Countdown on Tab — persistent flight countdown + destination label in the tab title | [Install](https://raw.githubusercontent.com/tanwj14/game-userscripts/main/torn/torn-flight-countdown.user.js) · [Details](torn/README.md) |
 
 ## Installing a script
 
