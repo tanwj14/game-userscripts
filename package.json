@@ -1,0 +1,11 @@
+{
+  "name": "game-userscripts",
+  "version": "1.0.0",
+  "description": "Shared dev dependencies for the userscript browser-inspect tooling (Playwright over CDP).",
+  "private": true,
+  "type": "commonjs",
+  "license": "MIT",
+  "devDependencies": {
+    "playwright": "^1.60.0"
+  }
+}

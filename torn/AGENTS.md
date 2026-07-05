@@ -55,9 +55,16 @@ its countdown reaches zero.
 
 ## Live-inspection workflow (CDP)
 
-A debug Chrome with `--remote-debugging-port=9222` + `playwright-core`
-(`chromium.connectOverCDP('http://localhost:9222')`) is used to read the live
-Torn tab's `document.title`, the travel link `aria-label`, and `localStorage`
-while flying. Pick the `torn.com` page that is not a `/builds/` asset. All travel
-states (flying both directions incl. return → `[TORN]`, abroad, and landing →
-home) have been verified live this way.
+Uses the shared debug-Chrome setup in
+[`tools/browser-inspect/`](../../tools/browser-inspect/README.md)
+(`--remote-debugging-port=9222`, `playwright` from the repo root). Torn-specific
+probes are in [`dev/browser-inspect/`](dev/browser-inspect/):
+
+- `inspect-flight.js` — one-shot snapshot of `document.title`, the travel link
+  `aria-label`, `#tcLogo` title, and the `torn_flight_*` keys.
+- `watch-landing.js` — polls a flight until it lands and confirms the cache clears
+  and the title resets (the landing → home branch).
+
+Both pick the `torn.com` page that is not a `/builds/` asset. All travel states
+(flying both directions incl. return → `[TORN]`, abroad, and landing → home) have
+been verified live this way.
