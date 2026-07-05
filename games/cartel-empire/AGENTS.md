@@ -9,18 +9,14 @@ QOL script: shows job / jail / hospital countdowns in the browser tab title and
 sends cross-tab-deduplicated desktop notifications on job completion and
 outcomes. Site: https://cartelempire.online (matches `https://cartelempire.online/*`).
 
-## Live-inspection workflow (Windows, Chrome 136+)
+## Live-inspection workflow (CDP)
 
-Chrome 136+ ignores `--remote-debugging-port` on the default profile, so run a
-copy of the profile:
-
-1. Close Chrome.
-2. Copy the profile (minus caches) to `%LOCALAPPDATA%\Google\Chrome\DebugProfile`.
-3. Launch:
-   `chrome.exe --user-data-dir="%LOCALAPPDATA%\Google\Chrome\DebugProfile" --remote-debugging-port=9222`
-4. Play in that window; keep it open. The `dev/browser-inspect/` Playwright
-   scripts connect via CDP to `http://localhost:9222` to read live DOM +
-   localStorage. See [`dev/browser-inspect/README.md`](dev/browser-inspect/README.md).
+Uses the shared debug-Chrome setup in
+[`tools/browser-inspect/`](../../tools/browser-inspect/README.md)
+(`--remote-debugging-port=9222`, `playwright` from the repo root). Cartel-specific
+probes are in [`dev/browser-inspect/`](dev/browser-inspect/) — see its
+[README](dev/browser-inspect/README.md) for what each one inspects. They connect
+via CDP to `http://localhost:9222` to read live DOM + localStorage.
 
 ## Key DOM facts (captured live)
 
