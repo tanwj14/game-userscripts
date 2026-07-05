@@ -40,9 +40,20 @@ that breaks the raw URL and silently kills auto-update for everyone installed.
 - Live-verify behavioural changes in a debug browser before shipping (see the
   game's `AGENTS.md` for its inspection workflow).
 
+## Dev tooling
+
+Shared, game-agnostic CDP tooling lives in [`tools/browser-inspect/`](tools/browser-inspect/)
+(the `inspect.js` connector + debug-Chrome setup). `playwright` is declared once
+in the repo-root `package.json` — run `npm install` at the root, and every script
+under `tools/` and `<game>/dev/` resolves it via Node's upward `node_modules`
+lookup. Game-specific probes (which hard-code that game's selectors / localStorage
+keys) live in `<game>/dev/browser-inspect/`.
+
 ## Adding a new game
 
 1. Create `<game>/` with `<game>.user.js`, `README.md`, `CHANGELOG.md`.
 2. Add `@updateURL` / `@downloadURL` headers pointing at the raw URL above.
 3. Add `<game>/AGENTS.md` if the game has non-obvious DOM/behaviour notes.
 4. Add a row to the root `README.md` scripts table.
+5. Put any game-specific inspectors in `<game>/dev/browser-inspect/` (reuse the
+   shared setup + root `playwright`; don't re-declare the dependency).

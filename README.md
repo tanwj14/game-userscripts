@@ -28,11 +28,14 @@ game-userscripts/
   README.md              # this index
   LICENSE                # MIT (shared)
   AGENTS.md              # dev / AI-harness conventions (shared)
+  package.json           # shared dev deps (playwright) for the browser-inspect tooling
+  tools/
+    browser-inspect/     # shared, game-agnostic CDP inspector + debug-Chrome setup
   <game>/
     <game>.user.js       # the userscript (stable raw URL for auto-update)
     README.md            # game-specific features + install link
     CHANGELOG.md         # version history
-    dev/                 # optional dev tooling for that game
+    dev/                 # optional game-specific dev probes (playwright from repo root)
 ```
 
 ## Contributing / developing

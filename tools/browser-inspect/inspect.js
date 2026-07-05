@@ -1,5 +1,5 @@
 // Connects to a Chrome started with --remote-debugging-port=9222
-// Usage: node tools/inspect.js [command] [args]
+// Usage: node tools/browser-inspect/inspect.js [command] [args]
 //   tabs              -> list all open tabs (title + url)
 //   dom <urlpart>     -> dump outerHTML of the tab whose URL contains <urlpart>
 //   html <urlpart> <selector> -> dump outerHTML of a specific element
