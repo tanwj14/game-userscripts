@@ -3,10 +3,11 @@
 Cartel-Empire-specific CDP inspectors for developing
 `../../cartel-empire-job-timer.user.js`.
 
-Setup — debug Chrome, the shared `inspect.js` (`tabs` / `dom` / `html`), and
-`npm install` — is covered once in the shared
-[`tools/browser-inspect/`](../../../../tools/browser-inspect/README.md). Run the
-scripts below from the repo root; `playwright` resolves from the root
+The shared [`tools/browser-inspect/`](../../../../tools/browser-inspect/README.md)
+README covers the common setup: launching debug Chrome, the `inspect.js` tool, and
+`npm install`.
+
+Run the scripts below from the repo root. Playwright resolves from the root
 `node_modules`.
 
 ## Scripts
