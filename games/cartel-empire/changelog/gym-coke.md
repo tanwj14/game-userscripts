@@ -3,6 +3,16 @@
 All notable changes to `cartel-empire-gym-coke-consumption.user.js`. Versions
 follow the `@version` header.
 
+## [1.3.0]
+
+- **Owned-count auto-refreshes on panel open.** Previously the count was fetched
+  only on the first open and then just decremented locally, so consuming Cocaine
+  elsewhere left the widget's number stale until a reload. Opening the panel now
+  re-reads inventory, throttled to at most once per 15s so rapid open/close
+  doesn't re-download the ~1.2MB inventory page. The fetch is non-blocking (the
+  panel opens instantly and the number updates in place) and abort-capped at 6s,
+  keeping the last-known count on a slow/failed request instead of blanking it.
+
 ## [1.2.0]
 
 - **Take button gates at max cooldown.** When the remaining drug cooldown is

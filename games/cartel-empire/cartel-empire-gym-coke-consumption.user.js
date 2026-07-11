@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Cartel Empire - Gym Coke Consumption
 // @namespace    http://tampermonkey.net/
-// @version      1.2.0
+// @version      1.3.0
 // @description  Left-edge floating widget on the Gym page to consume Cocaine and instantly refresh the workout energy boxes (no reload), with a live drug-cooldown readout.
 // @author       PureVirginPulp [1611]
 // @match        https://cartelempire.online/Gym
@@ -21,6 +21,8 @@
     const CD_KEY = 'ceGymCokeCooldown';     // persisted { end, cap } cooldown snapshot
     const COKE_LABEL = 'Take Cocaine';      // EXACT match — "Take Tainted Cocaine" is a different item
     const DEFAULT_CAP = 24 * 3600;          // fallback cooldown cap; real value comes from the game
+    const REFRESH_MS = 15000;               // throttle owned-count re-fetches on panel open
+    const FETCH_TIMEOUT = 6000;             // abort a slow inventory fetch, keep the last-known count
 
     // ---------- time helpers ----------
     const hmsToSec = (hms) => {
@@ -38,12 +40,20 @@
     let capSec = DEFAULT_CAP;     // cooldown cap in seconds (server-authoritative once known)
     let qty = null;              // owned Cocaine count
     let busy = false;
+    let lastInvFetch = 0;        // ms of the last completed inventory read (throttle window)
+    let invFetching = false;     // guard against overlapping inventory fetches
 
     // ---------- inventory / consume ----------
     async function fetchInventoryDoc() {
-        const r = await fetch('/Inventory', { cache: 'no-cache', credentials: 'same-origin' });
-        if (!r.ok) throw new Error('inventory request failed (' + r.status + ')');
-        return new DOMParser().parseFromString(await r.text(), 'text/html');
+        const ctrl = new AbortController();
+        const t = setTimeout(() => ctrl.abort(), FETCH_TIMEOUT); // don't let a slow fetch hang
+        try {
+            const r = await fetch('/Inventory', { cache: 'no-cache', credentials: 'same-origin', signal: ctrl.signal });
+            if (!r.ok) throw new Error('inventory request failed (' + r.status + ')');
+            return new DOMParser().parseFromString(await r.text(), 'text/html');
+        } finally {
+            clearTimeout(t);
+        }
     }
     function readCoke(doc) {
         const btn = Array.from(doc.querySelectorAll('.use-item-btn'))
@@ -67,7 +77,16 @@
         } else {
             qty = 0;
         }
+        lastInvFetch = Date.now(); // completed read → (re)start the throttle window
         return coke;
+    }
+    // Non-blocking, throttled owned-count refresh; keeps the last-known count on failure/timeout.
+    function refreshInventoryCount(force) {
+        if (invFetching || (!force && Date.now() - lastInvFetch < REFRESH_MS)) return;
+        invFetching = true;
+        refreshFromInventory()
+            .catch((e) => { if (force) setStatus('Error: ' + e.message, 'err'); }) // background failures stay quiet
+            .finally(() => { invFetching = false; render(); });
     }
     async function postUse(id) {
         const r = await fetch('/Inventory/Use?id=' + id, { method: 'POST', credentials: 'same-origin' });
@@ -270,11 +289,11 @@
         el.bar = root.querySelector('.ce-barfill');
         el.msg = root.querySelector('.ce-msg');
 
-        // toggle via click or keyboard; first open lazy-loads the owned count
+        // toggle via click or keyboard; opening refreshes the count (forced on first load, else throttled)
         const toggle = () => {
             const open = root.classList.toggle('open');
             el.tab.setAttribute('aria-expanded', String(open));
-            if (open && qty == null) refreshFromInventory().then(render).catch((e) => setStatus('Error: ' + e.message, 'err'));
+            if (open) refreshInventoryCount(qty == null);
         };
         el.tab.addEventListener('click', toggle);
         el.tab.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } });
