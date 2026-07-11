@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Cartel Empire - Gym Coke Consumption
 // @namespace    http://tampermonkey.net/
-// @version      1.3.0
+// @version      1.4.0
 // @description  Left-edge floating widget on the Gym page to consume Cocaine and instantly refresh the workout energy boxes (no reload), with a live drug-cooldown readout.
 // @author       PureVirginPulp [1611]
 // @match        https://cartelempire.online/Gym
@@ -42,6 +42,7 @@
     let busy = false;
     let lastInvFetch = 0;        // ms of the last completed inventory read (throttle window)
     let invFetching = false;     // guard against overlapping inventory fetches
+    let training = false;        // guard against overlapping train submits
 
     // ---------- inventory / consume ----------
     async function fetchInventoryDoc() {
@@ -154,6 +155,48 @@
             inp.setAttribute('placeholder', String(newEnergy));
             inp.setAttribute('aria-label', String(newEnergy));
         });
+    }
+
+    // ---------- in-place training: AJAX the native workout POST so the page (and widget) don't reload ----------
+    async function submitTrain(form) {
+        const input = form.querySelector('input[name="energyToUse"]');
+        const r = await fetch(form.getAttribute('action'), {
+            method: 'POST', credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'energyToUse=' + encodeURIComponent(input ? input.value : ''),
+        });
+        if (!r.ok) throw new Error('train request failed (' + r.status + ')');
+        return new DOMParser().parseFromString(await r.text(), 'text/html');
+    }
+    // clone the server's own result banner (.statusAlertBox, success or danger) into the gym column
+    function showTrainBanner(doc) {
+        const box = doc.querySelector('.statusAlertBox');
+        const anchor = document.querySelector('#mainBackground .container .row .col-12')
+            || document.querySelector('#mainBackground .container');
+        if (!box || !anchor) return false;
+        document.querySelectorAll('.ceCoke-trainmsg').forEach((n) => n.remove()); // drop a prior injected banner
+        const el = box.cloneNode(true);
+        el.classList.add('ceCoke-trainmsg');
+        anchor.insertBefore(el, anchor.firstChild);
+        el.scrollIntoView({ block: 'nearest' });
+        return true;
+    }
+    function onTrainSubmit(e) {
+        const form = e.target;
+        if (!form || form.tagName !== 'FORM' || !/^\/gym\/train\//i.test(form.getAttribute('action') || '')) return;
+        e.preventDefault();
+        if (training) return; // ignore rapid double-submits
+        training = true;
+        submitTrain(form).then((doc) => {
+            const shown = showTrainBanner(doc);
+            const cur = doc.querySelector('#currentEnergy');
+            const n = cur ? parseInt((cur.innerText || '').replace(/,/g, ''), 10) : NaN;
+            if (Number.isFinite(n)) setEnergy(n); // sync energy + workout boxes to the post-train value
+            // unrecognised 2xx: the POST already hit the server — reload to show truth, never re-train (would double-spend)
+            if (!shown && !Number.isFinite(n)) location.reload();
+        }).catch(() => {
+            location.reload(); // request failed — reflect real state via reload; never auto-resubmit (could double-train)
+        }).finally(() => { training = false; });
     }
 
     // ---------- initial cooldown (read the drug pill's on-show popover, flash-free) ----------
@@ -326,6 +369,7 @@
     restoreCooldown(); // instant readout from the last known value; the seed reconciles it
     buildUI();
     render();
+    document.addEventListener('submit', onTrainSubmit, true); // intercept the native workout POSTs
     // bootstrap can lag document-idle — wait for it (≤5s) before seeding
     (function waitBoot(tries) {
         if (window.bootstrap && bootstrap.Popover) return seedCooldownFromPill();
