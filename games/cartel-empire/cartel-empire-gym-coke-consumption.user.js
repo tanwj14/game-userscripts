@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Cartel Empire - Gym Coke Consumption
 // @namespace    http://tampermonkey.net/
-// @version      1.4.0
+// @version      1.4.1
 // @description  Left-edge floating widget on the Gym page to consume Cocaine and instantly refresh the workout energy boxes (no reload), with a live drug-cooldown readout.
 // @author       PureVirginPulp [1611]
 // @match        https://cartelempire.online/Gym
@@ -25,8 +25,10 @@
     const FETCH_TIMEOUT = 6000;             // abort a slow inventory fetch, keep the last-known count
 
     // ---------- time helpers ----------
+    // accepts D:HH:MM:SS (≥24h drug cooldowns), HH:MM:SS, or MM:SS
     const hmsToSec = (hms) => {
         const p = String(hms).split(':').map(Number);
+        if (p.length === 4) return p[0] * 86400 + p[1] * 3600 + p[2] * 60 + p[3];
         return p.length === 3 ? p[0] * 3600 + p[1] * 60 + p[2] : p.length === 2 ? p[0] * 60 + p[1] : 0;
     };
     const fmt = (sec) => {
@@ -128,8 +130,8 @@
         const total = msg.match(/for a total of (\d[\d,]*)/i);
         if (total) setEnergy(parseInt(total[1].replace(/,/g, ''), 10));
 
-        // "Drug cooldown has increased to 12:00:23/24:00:00" — never assume a fixed +3h (events halve it)
-        const cd = msg.match(/increased to\s*(\d{1,2}:\d{2}:\d{2})\s*\/\s*(\d{1,2}:\d{2}:\d{2})/i);
+        // "Drug cooldown has increased to 12:00:23/24:00:00" — never assume a fixed +3h (events halve it); allow a leading day (D:HH:MM:SS) at/over 24h
+        const cd = msg.match(/increased to\s*(\d{1,2}(?::\d{2}){2,3})\s*\/\s*(\d{1,2}(?::\d{2}){2,3})/i);
         if (cd) { cooldownEnd = Date.now() + hmsToSec(cd[1]) * 1000; capSec = hmsToSec(cd[2]); saveCooldown(); }
 
         if (qty != null) qty = Math.max(0, qty - 1);
@@ -239,7 +241,7 @@
             const t0 = Date.now();
             const poll = setInterval(() => {
                 const body = document.querySelector('.popover .popover-body');
-                const m = body && body.innerText.match(/(\d{1,2}:\d{2}:\d{2})/);
+                const m = body && body.innerText.match(/(\d{1,2}(?::\d{2}){2,3})/); // day-aware: D:HH:MM:SS at/over 24h
                 if (m) {
                     clearInterval(poll);
                     cooldownEnd = Date.now() + hmsToSec(m[1]) * 1000;

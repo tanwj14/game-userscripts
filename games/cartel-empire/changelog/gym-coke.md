@@ -3,6 +3,16 @@
 All notable changes to `cartel-empire-gym-coke-consumption.user.js`. Versions
 follow the `@version` header.
 
+## [1.4.1]
+
+- **Fixed max cooldown misreading as ~1 hour.** At/over 24h the drug pill formats
+  the time as `D:HH:MM:SS` (e.g. `1:00:06:35`), but the cooldown parser only
+  understood `HH:MM:SS`, so it grabbed the `1:00:06` substring and read ~1 hour —
+  under the cap, so after a refresh the Take button flipped back to a clickable
+  "Take Cocaine" instead of the red "At max cooldown". `hmsToSec` and the pill /
+  consume-message regexes are now day-aware (accept an optional leading day
+  component).
+
 ## [1.4.0]
 
 - **Training no longer reloads the page (widget stays open).** The four native
