@@ -181,9 +181,7 @@
         el.scrollIntoView({ block: 'nearest' });
         return true;
     }
-    // a co-installed workout script flips each submit button to a disabled "Please wait" on click,
-    // expecting the native nav to reset it — we prevent that nav, so snapshot the pristine label at
-    // load and force it back after every round-trip (mechanism-agnostic; beats a click- or submit-hook).
+    // snapshot each Train button's label at load and restore it after a train, so a co-installed script's disabled "Please wait" can't stick once we suppress the reload
     const trainButton = (form) => form.querySelector('input[type="submit"], button[type="submit"], button:not([type])');
     const btnLabel = (b) => (b.tagName === 'INPUT' ? b.value : b.textContent);
     const setBtnLabel = (b, v) => { if (v == null) return; if (b.tagName === 'INPUT') b.value = v; else b.textContent = v; };
