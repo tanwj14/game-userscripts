@@ -3,6 +3,20 @@
 All notable changes to `cartel-empire-gym-coke-consumption.user.js`. Versions
 follow the `@version` header.
 
+## [1.4.0]
+
+- **Training no longer reloads the page (widget stays open).** The four native
+  workout forms did a full-page POST, which reset the widget to collapsed after
+  every set. A capture-phase `submit` interceptor now sends the same
+  `energyToUse` POST via `fetch` (following redirects, session-cookie only — the
+  forms carry no CSRF token), clones the server's own result banner
+  (`.statusAlertBox`, success or error) into the gym column, and syncs the
+  post-train energy into the display and workout boxes — all without navigating,
+  so the pill stays where it was. Strictly 1:1 with your click: no auto-repeat,
+  no auto-train. On any failed/unrecognised response it reloads to reflect the
+  real state rather than re-POSTing — the request already reached the server, so
+  it never risks training twice.
+
 ## [1.3.0]
 
 - **Owned-count auto-refreshes on panel open.** Previously the count was fetched
