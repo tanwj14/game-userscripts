@@ -15,7 +15,10 @@ follow the `@version` header.
   so the pill stays where it was. Strictly 1:1 with your click: no auto-repeat,
   no auto-train. On any failed/unrecognised response it reloads to reflect the
   real state rather than re-POSTing — the request already reached the server, so
-  it never risks training twice.
+  it never risks training twice. It also snapshots each workout button's label
+  at load and force-restores it (enabled + original text) after every train, so
+  a co-installed workout script's disabled "Please wait" state can't leave the
+  button stuck now that the page no longer reloads.
 
 ## [1.3.0]
 

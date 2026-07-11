@@ -181,12 +181,30 @@
         el.scrollIntoView({ block: 'nearest' });
         return true;
     }
+    // a co-installed workout script flips each submit button to a disabled "Please wait" on click,
+    // expecting the native nav to reset it — we prevent that nav, so snapshot the pristine label at
+    // load and force it back after every round-trip (mechanism-agnostic; beats a click- or submit-hook).
+    const trainButton = (form) => form.querySelector('input[type="submit"], button[type="submit"], button:not([type])');
+    const btnLabel = (b) => (b.tagName === 'INPUT' ? b.value : b.textContent);
+    const setBtnLabel = (b, v) => { if (v == null) return; if (b.tagName === 'INPUT') b.value = v; else b.textContent = v; };
+    function snapshotTrainButtons() {
+        document.querySelectorAll('form[action^="/gym/train/"]').forEach((f) => {
+            const b = trainButton(f);
+            if (b && b.dataset.ceOrigLabel == null) b.dataset.ceOrigLabel = btnLabel(b);
+        });
+    }
+    function restoreTrainButton(b) {
+        if (!b) return;
+        b.disabled = false; b.removeAttribute('disabled');
+        setBtnLabel(b, b.dataset.ceOrigLabel);
+    }
     function onTrainSubmit(e) {
         const form = e.target;
         if (!form || form.tagName !== 'FORM' || !/^\/gym\/train\//i.test(form.getAttribute('action') || '')) return;
         e.preventDefault();
         if (training) return; // ignore rapid double-submits
         training = true;
+        const btn = e.submitter || trainButton(form); // reset THIS button so it can't stay stuck disabled
         submitTrain(form).then((doc) => {
             const shown = showTrainBanner(doc);
             const cur = doc.querySelector('#currentEnergy');
@@ -196,7 +214,7 @@
             if (!shown && !Number.isFinite(n)) location.reload();
         }).catch(() => {
             location.reload(); // request failed — reflect real state via reload; never auto-resubmit (could double-train)
-        }).finally(() => { training = false; });
+        }).finally(() => { training = false; restoreTrainButton(btn); });
     }
 
     // ---------- initial cooldown (read the drug pill's on-show popover, flash-free) ----------
@@ -369,6 +387,7 @@
     restoreCooldown(); // instant readout from the last known value; the seed reconciles it
     buildUI();
     render();
+    snapshotTrainButtons(); // capture pristine "Train" labels before a click can flip them to "Please wait"
     document.addEventListener('submit', onTrainSubmit, true); // intercept the native workout POSTs
     // bootstrap can lag document-idle — wait for it (≤5s) before seeding
     (function waitBoot(tries) {
