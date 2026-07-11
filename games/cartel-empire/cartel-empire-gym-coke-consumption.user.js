@@ -181,7 +181,7 @@
         el.scrollIntoView({ block: 'nearest' });
         return true;
     }
-    // snapshot each Train button's label at load and restore it after a train, so a co-installed script's disabled "Please wait" can't stick once we suppress the reload
+    // snapshot each Train button's label at load and restore it after a train, so the game's own "Please wait" submit handler can't leave it stuck once we suppress the reload
     const trainButton = (form) => form.querySelector('input[type="submit"], button[type="submit"], button:not([type])');
     const btnLabel = (b) => (b.tagName === 'INPUT' ? b.value : b.textContent);
     const setBtnLabel = (b, v) => { if (v == null) return; if (b.tagName === 'INPUT') b.value = v; else b.textContent = v; };

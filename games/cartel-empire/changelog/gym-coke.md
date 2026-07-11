@@ -17,8 +17,8 @@ follow the `@version` header.
   real state rather than re-POSTing — the request already reached the server, so
   it never risks training twice. It also snapshots each workout button's label
   at load and force-restores it (enabled + original text) after every train, so
-  a co-installed workout script's disabled "Please wait" state can't leave the
-  button stuck now that the page no longer reloads.
+  the game's own "Please wait" submit handler can't leave the button stuck now
+  that the page no longer reloads.
 
 ## [1.3.0]
 
