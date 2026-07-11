@@ -50,4 +50,7 @@ reference, and the live-inspection workflow. Dev tooling lives in
 
 ## Changelog
 
-See [CHANGELOG.md](CHANGELOG.md).
+- Status Tracker & Notifier (this script):
+  [changelog/job-timer.md](changelog/job-timer.md).
+- Gym Coke Consumption (`cartel-empire-gym-coke-consumption.user.js`):
+  [changelog/gym-coke.md](changelog/gym-coke.md).
