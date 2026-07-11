@@ -22,6 +22,13 @@ Scripts carry `@updateURL` / `@downloadURL` headers pointing at this repo, so
 Tampermonkey checks for updates automatically. Shipping an update = bump the
 script's `@version` header and push to `main`.
 
+> **Install stuck refreshing an intermediate page?** On recent Chrome (notably
+> macOS), Tampermonkey (Manifest V3) needs **Developer Mode** enabled at
+> `chrome://extensions`, or its per-extension **Allow User Scripts** toggle
+> turned on — otherwise a `.user.js` link can loop on the install page instead
+> of prompting. Enable that, or use the Tampermonkey dashboard →
+> **Utilities → Install from URL** and paste the raw script link.
+
 ## Repo layout
 
 ```
