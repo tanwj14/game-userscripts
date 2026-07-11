@@ -37,4 +37,4 @@ and the live CDP inspection workflow.
 
 ## Changelog
 
-See [CHANGELOG.md](CHANGELOG.md).
+See [changelog/flight-countdown.md](changelog/flight-countdown.md).
