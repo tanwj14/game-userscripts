@@ -304,6 +304,8 @@
             #ceGym .ce-tab:focus-visible { outline: 2px solid #8bd18e; outline-offset: 2px; }
             #ceGym.open .ce-tab { border-color: #565d6d; }
             #ceGym .ce-bolt { font-size: 22px; line-height: 1; filter: drop-shadow(0 0 3px rgba(245,197,66,.55)); }
+            /* optically center the pill glyph (emoji ink is offset in its line box) */
+            #ceGym .ce-tab .ce-bolt { transform: translate(1px, -0.5px); }
             #ceGym .ce-panel { width: 250px; margin-left: 10px; padding: 12px 14px;
                 background: #1c1f26; border: 1px solid #3a3f4b; border-radius: 10px; color: #e6e6e6;
                 box-shadow: 0 6px 20px rgba(0,0,0,.55);
