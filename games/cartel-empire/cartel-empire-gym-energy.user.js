@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Cartel Empire - Gym Energy
 // @namespace    http://tampermonkey.net/
-// @version      2.0.1
+// @version      2.0.2
 // @description  Left-edge floating widget on the Gym page to top up energy from Cocaine + alcohol, with per-group drug/booster cooldown readouts, and to train in place without a full-page reload.
 // @author       PureVirginPulp [1611]
 // @match        https://cartelempire.online/Gym
@@ -28,8 +28,8 @@
 
     // two independent cooldown groups; drug reuses the v1.x key so mid-cooldown users don't lose it on upgrade
     const GROUPS = {
-        drug:    { icon: '.drugIcon',    key: 'ceGymCokeCooldown',    cooldownEnd: 0, capSec: DEFAULT_CAP },
-        booster: { icon: '.boosterIcon', key: 'ceGymBoosterCooldown', cooldownEnd: 0, capSec: DEFAULT_CAP },
+        drug:    { icon: '.drugIcon',    key: 'ceGymCokeCooldown',    cooldownEnd: 0, capSec: DEFAULT_CAP, authAt: 0 },
+        booster: { icon: '.boosterIcon', key: 'ceGymBoosterCooldown', cooldownEnd: 0, capSec: DEFAULT_CAP, authAt: 0 },
     };
 
     // ---------- time helpers ----------
@@ -134,8 +134,8 @@
             if (isSuccess(data)) {
                 applySuccess(data, item);
             } else {
-                // server says maxed → grey the group now, then reconcile the true remaining from the popover
-                if (isMaxCdError(data)) { g.cooldownEnd = Math.max(g.cooldownEnd, Date.now() + g.capSec * 1000); saveCooldown(g); reconcileCooldown(g); }
+                // server says maxed → grey the group now; the (possibly lagging) popover may not roll this back
+                if (isMaxCdError(data)) { g.cooldownEnd = Math.max(g.cooldownEnd, Date.now() + g.capSec * 1000); g.authAt = Date.now(); saveCooldown(g); }
                 setStatus((data && data.statusMsg && data.statusMsg.error) || 'Could not use ' + item.name + '.', 'err');
             }
         } catch (e) {
@@ -158,11 +158,16 @@
             if (Number.isFinite(cur)) setEnergy(cur + data.energyGained);
         }
 
-        // "<Drug|Booster> cooldown has increased to 12:00:23/24:00:00" — instant feedback when the wording matches; allow a leading day at/over 24h
+        // real wording: "Drug cooldown has increased to 26:59:41/24:00:00." (hours run past 24, no day part)
         const g = GROUPS[item.group];
-        const cd = msg.match(/increased to\s*(\d{1,2}(?::\d{2}){2,3})\s*\/\s*(\d{1,2}(?::\d{2}){2,3})/i);
-        if (cd) { g.cooldownEnd = Date.now() + hmsToSec(cd[1]) * 1000; g.capSec = hmsToSec(cd[2]); saveCooldown(g); }
-        reconcileCooldown(g); // popover is authoritative either way
+        const cd = msg.match(/increased to\s*(\d{1,3}(?::\d{2}){2,3})\s*\/\s*(\d{1,2}(?::\d{2}){2,3})/i);
+        if (cd) {
+            // the message is server truth — mark it so a lagging popover read can't roll the clock back
+            g.cooldownEnd = Date.now() + hmsToSec(cd[1]) * 1000; g.capSec = hmsToSec(cd[2]); g.authAt = Date.now(); saveCooldown(g);
+        } else {
+            // wording missed → the popover is the only source, but it lags AJAX consumes by up to ~1min: retry until fresh
+            [1000, 25000, 65000].forEach((ms) => setTimeout(() => reconcileCooldown(g), ms));
+        }
 
         if (item.count != null) item.count = Math.max(0, item.count - 1);
         setStatus(msg, 'ok');
@@ -276,8 +281,12 @@
                 const m = body && body.innerText.match(/(\d{1,2}(?::\d{2}){2,3})/); // day-aware: D:HH:MM:SS at/over 24h
                 if (m) {
                     clearInterval(poll);
-                    group.cooldownEnd = Date.now() + hmsToSec(m[1]) * 1000;
-                    saveCooldown(group); // popover is authoritative — reconcile the stored value
+                    // the popover countdown lags AJAX consumes (~1min): while a fresh server-confirmed value
+                    // is in force, ignore a popover read that would roll the clock back by more than drift
+                    const remMs = hmsToSec(m[1]) * 1000;
+                    const stale = group.authAt && Date.now() - group.authAt < 120000
+                        && remMs < (group.cooldownEnd - Date.now()) - 60000;
+                    if (!stale) { group.cooldownEnd = Date.now() + remMs; saveCooldown(group); }
                     done(); render();
                 } else if (Date.now() - t0 > 2000) {
                     clearInterval(poll); done();
@@ -412,6 +421,7 @@
             const open = root.classList.toggle('open');
             el.tab.setAttribute('aria-expanded', String(open));
             if (open) refreshInventory(items == null);
+            else setStatus('', ''); // collapse dismisses the last action message
         };
         el.tab.addEventListener('click', toggle);
         el.tab.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } });

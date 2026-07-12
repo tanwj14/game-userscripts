@@ -1,5 +1,26 @@
 # Changelog — Cartel Empire Gym Energy
 
+## [2.0.2]
+
+- **Fixed: a take's cooldown "bounced back" to the pre-consume time.** The
+  game's popover countdown is client-side state that lags AJAX consumes by up
+  to ~a minute, so the immediate post-consume popover reconcile read the stale
+  pre-consume value and rolled back the correct message-parsed clock (observed
+  live: take → `26:59:41` shown, reverted to `23:59:41` one second later,
+  self-corrected only at the next 60s reconcile). A server-confirmed value
+  (parsed consume message or a max rejection) now holds authority for 2
+  minutes: popover reads that would roll the clock back during that window are
+  ignored; afterwards the popover regains authority, keeping the cross-tab
+  self-heal.
+- When the message wording doesn't parse, the popover re-read retries at
+  ~1s/25s/65s so it catches the popover once the game refreshes it.
+- **Collapsing the panel clears the last action message** instead of letting
+  it linger forever.
+- Real cocaine wording captured live: "You took some Cocaine, gaining 50
+  Energy, for a total of 50! Drug cooldown has increased to 26:59:41/24:00:00."
+  — hours run past 24 with no day component (the popover uses `D:HH:MM:SS`);
+  cocaine adds 3h. Both formats parse.
+
 All notable changes to `cartel-empire-gym-energy.user.js` (v1.x shipped as
 `cartel-empire-gym-coke-consumption.user.js` — renamed in 2.0.0). Versions
 follow the `@version` header.
