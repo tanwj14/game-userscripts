@@ -9,7 +9,7 @@ README (features + install link), and per-script changelogs.
 | Game | Script | Install |
 | --- | --- | --- |
 | [Cartel Empire](https://cartelempire.online) | Status Tracker & Notifier — job / jail / hospital countdown in the tab title + desktop notifications | [Install](https://raw.githubusercontent.com/tanwj14/game-userscripts/main/games/cartel-empire/cartel-empire-job-timer.user.js) · [Details](games/cartel-empire/README.md) |
-| [Cartel Empire](https://cartelempire.online) | Gym Coke Consumption — consume Cocaine from the Gym page and instantly refresh the workout energy boxes, with a live drug-cooldown readout | [Install](https://raw.githubusercontent.com/tanwj14/game-userscripts/main/games/cartel-empire/cartel-empire-gym-coke-consumption.user.js) · [Details](games/cartel-empire/README.md) |
+| [Cartel Empire](https://cartelempire.online) | Gym Energy — top up energy from Cocaine + alcohol on the Gym page and train in place, with live drug/booster cooldown readouts | [Install](https://raw.githubusercontent.com/tanwj14/game-userscripts/main/games/cartel-empire/cartel-empire-gym-energy.user.js) · [Details](games/cartel-empire/README.md) |
 | [Torn](https://www.torn.com) | Flight Countdown on Tab — persistent flight countdown + destination label in the tab title | [Install](https://raw.githubusercontent.com/tanwj14/game-userscripts/main/games/torn/torn-flight-countdown.user.js) · [Details](games/torn/README.md) |
 
 ## Installing a script

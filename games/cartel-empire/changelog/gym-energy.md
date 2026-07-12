@@ -1,7 +1,39 @@
-# Changelog — Cartel Empire Gym Coke Consumption
+# Changelog — Cartel Empire Gym Energy
 
-All notable changes to `cartel-empire-gym-coke-consumption.user.js`. Versions
+All notable changes to `cartel-empire-gym-energy.user.js` (v1.x shipped as
+`cartel-empire-gym-coke-consumption.user.js` — renamed in 2.0.0). Versions
 follow the `@version` header.
+
+## [2.0.0]
+
+- **Renamed to "Gym Energy"** (`cartel-empire-gym-energy.user.js`). The
+  filename and `@name` changed, so Tampermonkey treats it as a new script:
+  uninstall the old "Gym Coke Consumption" **before** installing this one from
+  the new raw URL — there is no auto-update across the rename, and running
+  both at once double-fires the train interceptor (each workout click would
+  POST twice).
+- **Unified energy widget: Cocaine + alcohol.** The single-Cocaine pill is now
+  a grouped panel with two independent cooldown sections — **Drug** (Cocaine,
+  "Take") and **Booster** (every owned alcohol, "Drink", sorted by tier:
+  Corana → Mexcal → Blancoda → Repose → Anejo → Raicilla). Each group has its
+  own timer, cap, bar, and `localStorage` key; the drug group reuses the v1.x
+  key so a mid-cooldown upgrade keeps its readout. Both groups seed from their
+  own status-icon popover (`.drugIcon` / `.boosterIcon`) with the same
+  day-aware, retrying, flash-free read.
+- **Max-cooldown behaviour reworked.** A maxed group now greys out all of that
+  group's buttons with a red, full bar while the timer keeps counting — no "At
+  max cooldown" button text. Groups gate independently; consuming stays
+  blocked programmatically too.
+- **One inventory read feeds both groups.** The background `/Inventory` fetch
+  collects all consumables in a single pass (exact "Take Cocaine" match,
+  generic "Drink X" + Alcohol-category detection, name-anchored counts,
+  desktop/mobile duplicate buttons deduped), keeping the 15s throttle, 6s
+  abort, and keep-last-list failure handling. Concurrent callers (panel open +
+  consume retry) now share one in-flight fetch instead of racing two.
+- **New pill icon.** The cropped Cocaine sprite is replaced by a ⚡ lightning
+  bolt — the widget is about energy, not one drug.
+- In-place training (AJAX workout POST, server banner, button restore) carries
+  over from v1.4.x unchanged.
 
 ## [1.4.1]
 
