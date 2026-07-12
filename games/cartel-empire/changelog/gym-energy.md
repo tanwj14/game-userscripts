@@ -1,5 +1,21 @@
 # Changelog — Cartel Empire Gym Energy
 
+## [2.0.3]
+
+- **A drink that maxes the booster greys the group instantly.** Real alcohol
+  wording captured live: "You drank a Blancoda Tequila, your Alcohol cooldown
+  is maxed!" — it carries no `increased to X/Y` time, so the widget waited
+  ~2s for the popover reconcile before greying, leaving Drink clickable in
+  that window (a click only earned the server's max rejection, but still).
+  A success message saying "cooldown is maxed" is now treated as server truth
+  like the max rejection: the clock is set to at least the cap and the group
+  greys immediately, while the popover retries still converge on the exact
+  overshoot value (higher reads pass the anti-rollback guard).
+- Live booster test on 2.0.2 passed everything else: un-grey at cap-cross
+  without a reload, clock jump held with no bounce, energy + train boxes
+  synced (via the `energyGained` fallback — the alcohol wording has no
+  `for a total of X` either), re-grey at max.
+
 ## [2.0.2]
 
 - **Fixed: a take's cooldown "bounced back" to the pre-consume time.** The
