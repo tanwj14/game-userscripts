@@ -52,7 +52,7 @@ Surfaces your current status without keeping the tab in focus.
 
 A left-edge floating pill on the Gym page (`/Gym`) to top up energy from
 Cocaine and alcohol and train immediately — no trip to Inventory and no page
-reload. (v1.x shipped as "Gym Coke Consumption"; renamed in 2.0.0.)
+reload.
 
 ### Features
 

@@ -1,13 +1,14 @@
 # AGENTS.md — Cartel Empire
 
-Game-specific development context for `cartel-empire-job-timer.user.js`. For the
-shared shipping workflow and repo conventions, see the [root AGENTS.md](../../AGENTS.md).
+Game-specific development context. For the shared shipping workflow and repo
+conventions, see the [root AGENTS.md](../../AGENTS.md).
 
-In-game author: `PureVirginPulp [1611]`.
+In-game author: `PureVirginPulp [1611]`. Site: https://cartelempire.online.
 
-QOL script: shows job / jail / hospital countdowns in the browser tab title and
-sends cross-tab-deduplicated desktop notifications on job completion and
-outcomes. Site: https://cartelempire.online (matches `https://cartelempire.online/*`).
+Two scripts ship here. The DOM/behaviour notes below cover
+**`cartel-empire-job-timer.user.js`** — job / jail / hospital countdowns in the
+tab title plus cross-tab-deduplicated desktop notifications. The Gym Energy
+script's dev knowledge lives in [`changelog/gym-energy.md`](changelog/gym-energy.md).
 
 ## Live-inspection workflow (CDP)
 
