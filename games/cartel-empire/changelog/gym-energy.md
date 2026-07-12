@@ -4,6 +4,23 @@ All notable changes to `cartel-empire-gym-energy.user.js` (v1.x shipped as
 `cartel-empire-gym-coke-consumption.user.js` — renamed in 2.0.0). Versions
 follow the `@version` header.
 
+## [2.0.1]
+
+- **Fixed: maxed booster still showed green Drink buttons.** Real drink success
+  messages don't carry the drug-style `increased to X/Y` wording the widget
+  parsed, so drinking on the page never advanced the booster clock and the
+  group never registered max. (Live finding: the booster cooldown can overshoot
+  its cap — 25:48 remaining vs a 24:00 cap — and ticks down from there.) The
+  cooldown is now reconciled from the group's status-icon popover right after
+  every consume, independent of message wording; and the server's max rejection
+  ("…you're at max Booster cooldown.") immediately greys the group and triggers
+  the same popover reconcile.
+- **Fixed: workout energy boxes not updating after a drink.** Same wording
+  dependency — the `for a total of X` energy parse missed on drinks. The
+  response's `energyGained` field is now the fallback (current energy + gain),
+  so the energy display and the four train inputs update regardless of wording.
+- A max rejection no longer triggers the stale-id inventory refetch (~1.2MB).
+
 ## [2.0.0]
 
 - **Renamed to "Gym Energy"** (`cartel-empire-gym-energy.user.js`). The

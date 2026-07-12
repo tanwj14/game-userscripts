@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Cartel Empire - Gym Energy
 // @namespace    http://tampermonkey.net/
-// @version      2.0.0
+// @version      2.0.1
 // @description  Left-edge floating widget on the Gym page to top up energy from Cocaine + alcohol, with per-group drug/booster cooldown readouts, and to train in place without a full-page reload.
 // @author       PureVirginPulp [1611]
 // @match        https://cartelempire.online/Gym
@@ -110,6 +110,8 @@
         try { return await r.json(); } catch { return null; }
     }
     const isSuccess = (d) => d && d.status === 200 && d.statusMsg && d.statusMsg.success;
+    // real rejection wording: "Couldn't use Corana Beer as you're at max Booster cooldown."
+    const isMaxCdError = (d) => /at max \w+ cooldown/i.test((d && d.statusMsg && d.statusMsg.error) || '');
     const findItem = (group, name) => (items || []).find((it) => it.group === group && it.name === name);
 
     async function consume(item) {
@@ -121,15 +123,20 @@
         setStatus((drink ? 'Drinking ' : 'Taking ') + item.name + '…', 'muted');
         try {
             let data = item.id ? await postUse(item.id) : null;
-            // stale id (stack emptied/changed) → re-resolve by name+group and retry once
-            if (!isSuccess(data)) {
+            // stale id (stack emptied/changed) → re-resolve by name+group and retry once; a max rejection isn't a stale id
+            if (!isSuccess(data) && !isMaxCdError(data)) {
                 await refreshFromInventory();
                 const fresh = findItem(item.group, item.name);
                 if (fresh && fresh.id && fresh.id !== item.id) data = await postUse(fresh.id);
                 if (fresh) item = fresh;
             }
-            if (isSuccess(data)) applySuccess(data.statusMsg.success, item);
-            else setStatus((data && data.statusMsg && data.statusMsg.error) || 'Could not use ' + item.name + '.', 'err');
+            if (isSuccess(data)) {
+                applySuccess(data, item);
+            } else {
+                // server says maxed → grey the group now, then reconcile the true remaining from the popover
+                if (isMaxCdError(data)) { g.cooldownEnd = Math.max(g.cooldownEnd, Date.now() + g.capSec * 1000); saveCooldown(g); reconcileCooldown(g); }
+                setStatus((data && data.statusMsg && data.statusMsg.error) || 'Could not use ' + item.name + '.', 'err');
+            }
         } catch (e) {
             setStatus('Error: ' + e.message, 'err');
         } finally {
@@ -137,15 +144,24 @@
         }
     }
 
-    // Parse the game's own success message for the authoritative new energy + this group's cooldown/cap.
-    function applySuccess(msg, item) {
+    // Apply a consume success: new energy + this group's cooldown, without depending on message wording.
+    function applySuccess(data, item) {
+        const msg = data.statusMsg.success;
+        // energy: absolute total when the message carries it, else current + the response's energyGained field
         const total = msg.match(/for a total of (\d[\d,]*)/i);
-        if (total) setEnergy(parseInt(total[1].replace(/,/g, ''), 10));
+        if (total) {
+            setEnergy(parseInt(total[1].replace(/,/g, ''), 10));
+        } else if (data.energyGained > 0) {
+            const curEl = document.querySelector('#currentEnergy');
+            const cur = curEl ? parseInt((curEl.innerText || '').replace(/,/g, ''), 10) : NaN;
+            if (Number.isFinite(cur)) setEnergy(cur + data.energyGained);
+        }
 
-        // "<Drug|Booster> cooldown has increased to 12:00:23/24:00:00" — route by item.group, not the word; allow a leading day at/over 24h
+        // "<Drug|Booster> cooldown has increased to 12:00:23/24:00:00" — instant feedback when the wording matches; allow a leading day at/over 24h
         const g = GROUPS[item.group];
         const cd = msg.match(/increased to\s*(\d{1,2}(?::\d{2}){2,3})\s*\/\s*(\d{1,2}(?::\d{2}){2,3})/i);
         if (cd) { g.cooldownEnd = Date.now() + hmsToSec(cd[1]) * 1000; g.capSec = hmsToSec(cd[2]); saveCooldown(g); }
+        reconcileCooldown(g); // popover is authoritative either way
 
         if (item.count != null) item.count = Math.max(0, item.count - 1);
         setStatus(msg, 'ok');
@@ -270,6 +286,12 @@
         } catch (e) {
             done();
         }
+    }
+    // Re-read a group's popover shortly after a consume — cooldown truth without message parsing.
+    // Skipped while the icon is hidden (no cooldown yet and the icon may not unhide without a reload).
+    function reconcileCooldown(g) {
+        const icon = document.querySelector(g.icon);
+        if (icon && !icon.classList.contains('d-none')) setTimeout(() => seedCooldown(g, 1), 500);
     }
     const cdRemaining = (g) => (g.cooldownEnd ? Math.max(0, (g.cooldownEnd - Date.now()) / 1000) : 0);
     // 2s tolerance so an exact-cap readout still counts as maxed
