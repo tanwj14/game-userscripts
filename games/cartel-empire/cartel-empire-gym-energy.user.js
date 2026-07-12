@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Cartel Empire - Gym Energy
 // @namespace    http://tampermonkey.net/
-// @version      2.0.2
+// @version      2.0.3
 // @description  Left-edge floating widget on the Gym page to top up energy from Cocaine + alcohol, with per-group drug/booster cooldown readouts, and to train in place without a full-page reload.
 // @author       PureVirginPulp [1611]
 // @match        https://cartelempire.online/Gym
@@ -164,6 +164,13 @@
         if (cd) {
             // the message is server truth — mark it so a lagging popover read can't roll the clock back
             g.cooldownEnd = Date.now() + hmsToSec(cd[1]) * 1000; g.capSec = hmsToSec(cd[2]); g.authAt = Date.now(); saveCooldown(g);
+        } else if (/cooldown is maxed/i.test(msg)) {
+            // real maxed-drink wording: "You drank a Blancoda Tequila, your Alcohol cooldown is maxed!" —
+            // no time given, but maxed is server truth: grey the group now instead of waiting for the popover.
+            // The retries still converge on the exact overshoot (a higher popover read passes the
+            // anti-rollback guard; a stale lower one is rejected).
+            g.cooldownEnd = Math.max(g.cooldownEnd, Date.now() + g.capSec * 1000); g.authAt = Date.now(); saveCooldown(g);
+            [1000, 25000, 65000].forEach((ms) => setTimeout(() => reconcileCooldown(g), ms));
         } else {
             // wording missed → the popover is the only source, but it lags AJAX consumes by up to ~1min: retry until fresh
             [1000, 25000, 65000].forEach((ms) => setTimeout(() => reconcileCooldown(g), ms));
