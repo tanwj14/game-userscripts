@@ -20,6 +20,7 @@
     const DEFAULT_CAP = 24 * 3600;          // fallback cooldown cap (drug + booster share it); real value comes from the game
     const REFRESH_MS = 15000;               // throttle inventory re-fetches on panel open
     const FETCH_TIMEOUT = 6000;             // abort a slow inventory fetch, keep the last-known list
+    const RECONCILE_MS = 60000;             // periodic popover re-read so the clocks stay honest without a reload
     const COKE_LABEL = 'Take Cocaine';      // EXACT match — "Take Tainted Cocaine" is a different item
     // alcohols in tier order (cheapest→priciest); anything unlisted sorts last, stable
     const ALC_ORDER = ['Corana Beer', 'Mexcal Beer', 'Blancoda Tequila', 'Repose Tequila', 'Anejo Tequila', 'Raicilla'];
@@ -293,6 +294,12 @@
         const icon = document.querySelector(g.icon);
         if (icon && !icon.classList.contains('d-none')) setTimeout(() => seedCooldown(g, 1), 500);
     }
+    // Keep both clocks honest while the page sits open (cooldowns can change from other tabs/scripts).
+    function reconcileAll() {
+        if (document.visibilityState !== 'visible') return;
+        if (!readingRefs && document.querySelector('.popover.show')) return; // user is reading a popover — don't yank it
+        Object.keys(GROUPS).forEach((n) => reconcileCooldown(GROUPS[n]));
+    }
     const cdRemaining = (g) => (g.cooldownEnd ? Math.max(0, (g.cooldownEnd - Date.now()) / 1000) : 0);
     // 2s tolerance so an exact-cap readout still counts as maxed
     const atMaxCd = (g) => g.capSec > 0 && cdRemaining(g) >= g.capSec - 2;
@@ -478,4 +485,6 @@
         if (tries > 0) setTimeout(() => waitBoot(tries - 1), 500);
     })(10);
     setInterval(render, 1000);
+    setInterval(reconcileAll, RECONCILE_MS);
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reconcileAll(); });
 })();

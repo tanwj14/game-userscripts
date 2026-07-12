@@ -20,6 +20,11 @@ follow the `@version` header.
   response's `energyGained` field is now the fallback (current energy + gain),
   so the energy display and the four train inputs update regardless of wording.
 - A max rejection no longer triggers the stale-id inventory refetch (~1.2MB).
+- **Clocks self-heal without a reload.** Both cooldown popovers are re-read
+  every 60s while the tab is visible, and immediately when you return to the
+  tab — so a cooldown changed outside the widget (another tab, the Inventory
+  page, another script) greys/ungreys the buttons on its own. The re-read is
+  skipped while you're hovering a popover so it doesn't get yanked shut.
 
 ## [2.0.0]
 
