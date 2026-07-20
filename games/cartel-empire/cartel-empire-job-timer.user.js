@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Cartel Empire - Status Tracker & Notifier
 // @namespace    http://tampermonkey.net/
-// @version      1.5.5
+// @version      1.5.6
 // @description  QOL script for Cartel Empire: shows your job / jail / hospital countdown in the browser tab title and sends desktop notifications on job completion and outcomes.
 // @author       PureVirginPulp [1611]
 // @match        https://cartelempire.online/*
@@ -539,9 +539,11 @@
                 document.title = `[${activeJobName}] ${formatSeconds(remaining)} | ${originalTitle}`;
             } else if (remaining >= -10) {
                 const hasFailed = alertBanner && /failed/i.test(alertBanner.innerText);
+                // Keyed to finishTime so a prior job's failure can't leak into this one.
+                const jobFailed = (parseInt(localStorage.getItem('CEJobFailed'), 10) || 0) === finishTime;
 
-                if (hasFailed || localStorage.getItem('CEJobFailed') === 'true') {
-                    localStorage.setItem('CEJobFailed', 'true');
+                if (hasFailed || jobFailed) {
+                    localStorage.setItem('CEJobFailed', String(finishTime));
                     document.title = `[JOB FAILED] | ${originalTitle}`;
 
                     if (!jobNotified) {

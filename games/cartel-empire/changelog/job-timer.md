@@ -2,6 +2,15 @@
 
 All notable changes to this userscript. Versions follow the `@version` header.
 
+## [1.5.6]
+
+- **Fixed false "Job Failed" on a successful job.** The `CEJobFailed` flag was a
+  bare boolean that wasn't cleared when a new job started, so a failure from the
+  previous job could leak into the next one and mislabel it as failed (common when
+  refreshing to start a new job right after a fail). `CEJobFailed` is now stored as
+  the job's `finishTime` and matched against the current job — mirroring
+  `CEJobSelfLocked` — so a stale flag from a different job is ignored.
+
 ## [1.5.5]
 
 - Moved into `games/cartel-empire/` (repo reorg). Updated `@updateURL` /
