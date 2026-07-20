@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Cartel Empire - Status Tracker & Notifier
 // @namespace    http://tampermonkey.net/
-// @version      1.5.6
+// @version      1.6.0
 // @description  QOL script for Cartel Empire: shows your job / jail / hospital countdown in the browser tab title and sends desktop notifications on job completion and outcomes.
 // @author       PureVirginPulp [1611]
 // @match        https://cartelempire.online/*
@@ -33,6 +33,13 @@
     // Seen locked this page load — blocks the post-load "looks free" gap from faking a release.
     let observedLockedThisSession = false;
 
+    // masterClock ticks since load — lets outcome reconcile trust a "free" reading only
+    // after the navbar lock icon has had a moment to render.
+    let ticksSinceLoad = 0;
+
+    // Drop a stale key from an older version that the current script never reads.
+    localStorage.removeItem('CE_InHospital');
+
     const isEventsPage = window.location.pathname.toLowerCase().includes('/events');
 
     // Per-tab ID for single-notifier election.
@@ -61,6 +68,12 @@
     // A lock is the job's outcome only within GRACE of timer end; earlier = self-lock
     // (job keeps running while self-hospitalised/jailed).
     const SELF_LOCK_GRACE = 3;
+
+    // Redirect-to-Jobs delay after a release. Silent releases (medded/favour early-out)
+    // go snappy; a natural run-down waits so its notification stays readable before
+    // the navigation tears it down.
+    const REDIRECT_DELAY_SILENT = 1200;
+    const REDIRECT_DELAY_NOTIFY = 4500;
 
     // Set true to log result banners to localStorage.CEOutcomeLog for re-tuning matchers.
     const DEBUG_OUTCOME_LOG = false;
@@ -129,11 +142,16 @@
         if (sessionStorage.getItem('CEOutcomeHandled') === sig) return;
         sessionStorage.setItem('CEOutcomeHandled', sig);
 
-        // Capture name before clearJobState wipes it.
+        // Capture name/finish before clearJobState wipes them.
         const jobNameAtOutcome = activeJobName;
+        const jobFinishAtOutcome = finishTime;
 
         clearJobState();
         clearLockState();
+
+        // Mark this job's outcome handled so the reconcile path can't re-fire it.
+        if (jobFinishAtOutcome) localStorage.setItem('CEOutcomeNotified', String(jobFinishAtOutcome));
+        clearOutcomeBreadcrumb();
 
         if (isPrisonOutcome) {
             notifyArrested(jobNameAtOutcome);
@@ -333,6 +351,9 @@
                 localStorage.setItem('CEJobFinishTime', finishTime);
                 localStorage.setItem('CEActiveJobName', activeJobName);
                 localStorage.setItem('CEJobNotified', 'false');
+                // A fresh job means the previous one is fully resolved — drop its breadcrumb.
+                clearOutcomeBreadcrumb();
+                localStorage.removeItem('CEOutcomeNotified');
             }
         }
     }
@@ -353,6 +374,14 @@
         lockFinishTime = null;
         localStorage.removeItem('CELockType');
         localStorage.removeItem('CELockFinishTime');
+    }
+
+    // Breadcrumb left when a tracked job's timer ends, so a later reload that finds us
+    // locked can still fire the outcome after finishTime has been cleared.
+    function clearOutcomeBreadcrumb() {
+        localStorage.removeItem('CEJobEndedUnresolved');
+        localStorage.removeItem('CEEndedJobName');
+        localStorage.removeItem('CEJobEndedAt');
     }
 
     function formatSeconds(totalSeconds) {
@@ -432,25 +461,27 @@
         }
     }
 
-    // Locked→free: favour = silent, no redirect; timer release = notify + go to /Jobs.
+    // Locked→free. Early self-release (medded out / Personal Favour, timer still had time
+    // left) is silent; a natural timer run-down notifies. Both redirect to /Jobs — the
+    // notify case waits longer so the toast is readable before the navigation.
     function handleRelease(releasedType) {
+        const now = Math.floor(Date.now() / 1000);
+        const earlyOut = lockFinishTime && (lockFinishTime - now) > SELF_LOCK_GRACE;
         const favTs = parseInt(localStorage.getItem('CEReleasedByFavour'), 10) || 0;
         const byFavour = (Date.now() - favTs) < 30000; // favour seen within ~1-2s
+        const silent = earlyOut || byFavour;
 
         clearLockState();
+        if (byFavour) localStorage.removeItem('CEReleasedByFavour');
         document.title = `[FREE!] | ${originalTitle}`;
 
-        if (byFavour) {
-            localStorage.removeItem('CEReleasedByFavour');
-            return;
-        }
+        if (!silent) notifyReleased(releasedType);
 
-        notifyReleased(releasedType);
         const handledKey = 'release-' + releasedType;
         if (sessionStorage.getItem('CELockReleaseHandled') !== handledKey) {
             sessionStorage.setItem('CELockReleaseHandled', handledKey);
             document.title = `[FREE!] Heading to Jobs… | ${originalTitle}`;
-            setTimeout(goToJobs, 1200);
+            setTimeout(goToJobs, silent ? REDIRECT_DELAY_SILENT : REDIRECT_DELAY_NOTIFY);
         }
     }
 
@@ -462,6 +493,7 @@
         syncStatusBanners();
 
         const now = Math.floor(Date.now() / 1000);
+        ticksSinceLoad++;
 
         // Locked→free on any tab (live status is truth). Gated on observedLockedThisSession.
         const liveStatus = detectStatusState(); // 'Hospital' | 'Prison' | null
@@ -469,6 +501,29 @@
         if (lockType && observedLockedThisSession && liveStatus === null) {
             handleRelease(lockType);
             return;
+        }
+
+        // Reconcile a just-ended job's outcome once finishTime is gone (e.g. an idle tab
+        // reloaded minutes later now shows the lock). Guarded so it fires once per job and
+        // never for a self-lock or a job that resolved free.
+        const endedFinish = parseInt(localStorage.getItem('CEJobEndedUnresolved'), 10) || 0;
+        if (endedFinish) {
+            const endedAt = parseInt(localStorage.getItem('CEJobEndedAt'), 10) || 0;
+            const stale = endedAt && (Date.now() - endedAt) > 2 * 3600 * 1000;
+            const outcomeDone = (parseInt(localStorage.getItem('CEOutcomeNotified'), 10) || 0) === endedFinish;
+            const selfLocked = (parseInt(localStorage.getItem('CEJobSelfLocked'), 10) || 0) === endedFinish;
+
+            if (stale || outcomeDone) {
+                clearOutcomeBreadcrumb();
+            } else if (liveStatus && !selfLocked) {
+                const endedName = localStorage.getItem('CEEndedJobName');
+                if (liveStatus === 'Prison') notifyArrested(endedName);
+                else notifyHospitalised(endedName);
+                localStorage.setItem('CEOutcomeNotified', String(endedFinish));
+                clearOutcomeBreadcrumb();
+            } else if (liveStatus === null && ticksSinceLoad >= 3) {
+                clearOutcomeBreadcrumb(); // confirmed free → the job resolved without a lock
+            }
         }
 
         if (lockFinishTime) {
@@ -500,7 +555,7 @@
                     sessionStorage.setItem('CELockExpiryReloaded', handledKey);
                     clearLockState();
                     document.title = `[FREE!] Heading to Jobs… | ${originalTitle}`;
-                    setTimeout(goToJobs, 1200);
+                    setTimeout(goToJobs, REDIRECT_DELAY_NOTIFY);
                 } else {
                     clearLockState();
                 }
@@ -525,9 +580,13 @@
                     lockType = consequence;
                     localStorage.setItem('CELockType', consequence);
                 }
-                if (!jobNotified) {
+                // Dedup on its own flag, not jobNotified — a premature "Job Complete!" must
+                // not mute the real outcome detected moments later.
+                const outcomeDone = (parseInt(localStorage.getItem('CEOutcomeNotified'), 10) || 0) === finishTime;
+                if (!outcomeDone) {
                     if (consequence === 'Prison') notifyArrested(activeJobName);
                     else notifyHospitalised(activeJobName);
+                    localStorage.setItem('CEOutcomeNotified', String(finishTime));
                     jobNotified = true;
                     localStorage.setItem('CEJobNotified', 'true');
                 }
@@ -538,6 +597,14 @@
             if (remaining > 0) {
                 document.title = `[${activeJobName}] ${formatSeconds(remaining)} | ${originalTitle}`;
             } else if (remaining >= -10) {
+                // Job timer ended: leave a breadcrumb so a later reload finding us locked
+                // can still fire the outcome after finishTime is cleared below.
+                if ((parseInt(localStorage.getItem('CEJobEndedUnresolved'), 10) || 0) !== finishTime) {
+                    localStorage.setItem('CEJobEndedUnresolved', String(finishTime));
+                    localStorage.setItem('CEEndedJobName', activeJobName || 'Job');
+                    localStorage.setItem('CEJobEndedAt', String(Date.now()));
+                }
+
                 const hasFailed = alertBanner && /failed/i.test(alertBanner.innerText);
                 // Keyed to finishTime so a prior job's failure can't leak into this one.
                 const jobFailed = (parseInt(localStorage.getItem('CEJobFailed'), 10) || 0) === finishTime;

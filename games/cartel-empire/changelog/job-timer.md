@@ -2,6 +2,32 @@
 
 All notable changes to this userscript. Versions follow the `@version` header.
 
+## [1.6.0]
+
+- **Fixed missed "Hospitalised!" / "Arrested!" on a job outcome.** In a tab that
+  wasn't refreshed at the moment a job ended, the script fired a premature
+  "Job Complete!" and set `CEJobNotified`, which then muted the real outcome it
+  detected afterwards (the tab tag flipped to `[HOSPITALISED]` but no notification
+  fired). Job outcomes now dedup on their own `CEOutcomeNotified` flag (keyed to
+  the job's `finishTime`), independent of the completion ping, so a premature
+  "complete" can no longer suppress the outcome.
+- **Reconcile the outcome on a later reload.** When a tracked job's timer ends the
+  script now leaves a breadcrumb (`CEJobEndedUnresolved` + job name + timestamp).
+  If a subsequent page load finds you locked, the outcome fires then — covering the
+  common case where you only discover the hospitalisation minutes later, after
+  `finishTime` was cleared and the transient result banner is long gone. Guarded so
+  it fires once per job and never for a self-lock, a job that resolved free, or a
+  breadcrumb older than 2h.
+- **Silent early self-release; notify only on natural run-down.** Leaving hospital
+  early with Medical Items (or jail with a Personal Favour) no longer fires a
+  "you're released" notification — you did it deliberately — but still auto-redirects
+  to `/Jobs`. A natural timer run-down still notifies. Early-vs-natural is detected
+  from whether the lock timer still had time left, independent of the item wording.
+- **Release notification no longer cut off by the redirect.** The natural-release
+  redirect now waits ~4.5s (was 1.2s) so the "You're out!" notification is readable
+  before the tab navigates; the silent early-out redirect stays snappy (~1.2s).
+- Cleaned up a stale `CE_InHospital` localStorage key left by an older version.
+
 ## [1.5.6]
 
 - **Fixed false "Job Failed" on a successful job.** The `CEJobFailed` flag was a
