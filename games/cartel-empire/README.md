@@ -27,7 +27,7 @@ Surfaces your current status without keeping the tab in focus.
 | **Page-independent status** | Detects jail/hospital state from live navbar signals, so it works on any page of the site, not just `/Jobs`. |
 | **Correct self-lock handling** | Self-hospitalising / self-jailing while a job is still running does *not* fire a false "attempt failed" alert — the job keeps counting down. |
 | **Multi-tab safe** | Notifications are deduplicated across open tabs — only one tab fires each alert. |
-| **Personal Favour aware** | Leaving jail early via a Personal Favour is handled silently (no bogus "you're released" spam). |
+| **Early self-release aware** | Leaving jail/hospital early yourself (Personal Favour / Medical Items) is silent; only a natural timer run-down notifies. |
 
 ### Notification triggers
 
@@ -37,7 +37,7 @@ Surfaces your current status without keeping the tab in focus.
 | Job failed | Plain fail, no consequence. |
 | Arrested | Job-caused jailing (`"Arrested! Your <Job> attempt failed..."`). |
 | Hospitalised | Job-caused injury. |
-| Released | When you're out of jail / hospital — then jumps you to `/Jobs`. |
+| Released | When your jail / hospital timer runs down — then jumps you to `/Jobs`. |
 
 ### Notes
 
