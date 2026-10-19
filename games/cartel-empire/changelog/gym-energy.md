@@ -1,5 +1,9 @@
 # Changelog — Cartel Empire Gym Energy
 
+## [2.1.0]
+
+- Small ↻ refresh button at the right of the panel title — reloads the page.
+
 ## [2.0.3]
 
 - **A drink that maxes the booster greys the group instantly.** Real alcohol
