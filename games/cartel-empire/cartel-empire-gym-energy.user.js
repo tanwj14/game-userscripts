@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Cartel Empire - Gym Energy
 // @namespace    http://tampermonkey.net/
-// @version      2.0.3
+// @version      2.1.0
 // @description  Left-edge floating widget on the Gym page to top up energy from Cocaine + alcohol, with per-group drug/booster cooldown readouts, and to train in place without a full-page reload.
 // @author       PureVirginPulp [1611]
 // @match        https://cartelempire.online/Gym
@@ -363,6 +363,13 @@
             #ceGym .ce-h { display: flex; align-items: center; gap: 7px; font-weight: 700; font-size: 14px;
                 margin: 0 0 8px; padding-bottom: 8px; border-bottom: 1px solid #2a2e38; }
             #ceGym .ce-h .ce-bolt { font-size: 15px; }
+            #ceGym .ce-reload { margin-left: auto; width: 22px; height: 22px; padding: 0; flex: none;
+                display: flex; align-items: center; justify-content: center;
+                background: none; border: 1px solid #3a3f4b; border-radius: 6px;
+                color: #9aa0ac; font-size: 14px; line-height: 1; cursor: pointer;
+                transition: color .15s ease, border-color .15s ease; }
+            #ceGym .ce-reload:hover { color: #e6e6e6; border-color: #565d6d; }
+            #ceGym .ce-reload:focus-visible { outline: 2px solid #8bd18e; outline-offset: 2px; }
             #ceGym .ce-energy { display: flex; justify-content: space-between; align-items: baseline;
                 font-size: 12px; color: #9aa0ac; margin: 0 0 4px; }
             #ceGym .ce-energyval { font-size: 14px; font-weight: 700; color: #e6e6e6; font-variant-numeric: tabular-nums; }
@@ -398,7 +405,7 @@
         root.innerHTML = `
             <div class="ce-tab" role="button" tabindex="0" title="Gym Energy" aria-label="Gym Energy panel" aria-expanded="false">${BOLT}</div>
             <div class="ce-panel">
-                <div class="ce-h">${BOLT}Gym Energy</div>
+                <div class="ce-h">${BOLT}Gym Energy<button type="button" class="ce-reload" title="Refresh page" aria-label="Refresh page">↻</button></div>
                 <div class="ce-energy">Energy <span class="ce-energyval">…</span></div>
                 <div class="ce-group" data-group="drug">
                     <div class="ce-gh"><span>Drug cooldown</span><span class="ce-cdval">—</span></div>
@@ -431,6 +438,7 @@
             else setStatus('', ''); // collapse dismisses the last action message
         };
         el.tab.addEventListener('click', toggle);
+        root.querySelector('.ce-reload').addEventListener('click', () => location.reload());
         el.tab.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } });
         document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && root.classList.contains('open')) toggle(); });
     }
