@@ -14,15 +14,16 @@ the shared shipping workflow, see the [root AGENTS.md](../../AGENTS.md).
 - Pending first pick: `has_selected_testing_pair === false` plus one card with
   `is_tested_pair && !is_matched`. When `has_selected_testing_pair === true`, the
   response is the result of the second pick.
-- `is_complete` is set when the board is cleared. The Dusted (upgraded) board has
-  18 cards; the normal board has fewer.
+- Opening a fresh board POSTs `action=new_game`; its response has no revealed cards.
+- `is_complete: true` arrives on the final match's response (verified 2026-11-03).
+- Both the normal and Dusted (`is_upgraded: true`) boards have 18 cards.
 - DOM: `.halloweenMemoryGame-content > .halloweenMemoryGame-card-container[data-card-id]`.
   Its class includes `revealed` / `is_matched` when the card is face up. The game
   re-renders cards, so overlays are re-applied by a `MutationObserver`.
 
 ## Memory reset rules
 
-Memory clears on `is_complete`, a change in card count, or a server-revealed card
+Memory clears on an `action=new_game` request, `is_complete`, a change in card count, or a server-revealed card
 whose name differs from the remembered one (a new board). It does **not** clear
 when no card has been revealed yet: reopening the popup mid-game sends nothing
 revealed, which would otherwise wipe the memory.

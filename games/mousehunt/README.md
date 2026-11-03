@@ -11,7 +11,7 @@ It remembers every card you flip and tells you which card to open next.
 | **Remembers flipped cards** | Every card you reveal stays visible (image + name) on its face-down card, even after a miss flips it back. |
 | **Tells you what to open** | After your first flip, if its twin is already known, the twin glows green with an **OPEN** tag. Before a first flip, any known pair is tagged the same way. |
 | **Known pairs outlined** | Remembered cards whose twin is also known get a gold outline. |
-| **Normal + Dusted boards** | Works for both board sizes. Memory resets when a board completes or a new one starts. |
+| **Normal + Dusted boards** | Works on both. Memory resets when a board completes or a new one starts. |
 | **Survives reloads** | Memory is kept in `localStorage`. |
 
 ## Install
