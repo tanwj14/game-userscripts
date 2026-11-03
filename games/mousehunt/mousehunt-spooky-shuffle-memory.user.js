@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MouseHunt - Spooky Shuffle Memory
 // @namespace    http://tampermonkey.net/
-// @version      1.0.0
+// @version      1.0.1
 // @description  Remembers every Spooky Shuffle card you flip and shows it on the face-down card; known pairs are outlined.
 // @author       tanwj14
 // @match        https://www.mousehuntgame.com/*
@@ -30,12 +30,12 @@
     }
 
     // Merge server state into memory; reset when the board is clearly a new one.
-    function ingest(game) {
+    function ingest(game, isNewGame) {
         const cards = game && game.cards;
         if (!Array.isArray(cards)) return;
 
         const conflict = cards.some((c) => c.name && mem.cards[c.id] && mem.cards[c.id].name !== c.name);
-        if (game.is_complete || conflict || mem.size !== cards.length) {
+        if (isNewGame || game.is_complete || conflict || mem.size !== cards.length) {
             mem = { size: cards.length, cards: {} };
         }
 
@@ -52,13 +52,19 @@
 
     // Hook XHR (jQuery ajax) so we see every select_card / board response.
     const origOpen = XMLHttpRequest.prototype.open;
+    const origSend = XMLHttpRequest.prototype.send;
     XMLHttpRequest.prototype.open = function (method, url) {
         if (ENDPOINT.test(String(url))) {
+            this._mhss = true;
             this.addEventListener('load', () => {
-                try { ingest(JSON.parse(this.responseText).memory_game); } catch { /* non-JSON */ }
+                try { ingest(JSON.parse(this.responseText).memory_game, this._mhssNew); } catch { /* non-JSON */ }
             });
         }
         return origOpen.apply(this, arguments);
+    };
+    XMLHttpRequest.prototype.send = function (body) {
+        if (this._mhss && /(^|&)action=new_game(&|$)/.test(String(body))) this._mhssNew = true;
+        return origSend.apply(this, arguments);
     };
 
     // Names seen on 2+ unmatched remembered cards = a pair you can take.
