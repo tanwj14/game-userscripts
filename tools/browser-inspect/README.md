@@ -50,3 +50,4 @@ keys) live with the game:
 
 - [`games/cartel-empire/dev/browser-inspect/`](../../games/cartel-empire/dev/browser-inspect/)
 - [`games/torn/dev/browser-inspect/`](../../games/torn/dev/browser-inspect/)
+- [`games/mousehunt/dev/browser-inspect/`](../../games/mousehunt/dev/browser-inspect/)
